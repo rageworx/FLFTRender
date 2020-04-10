@@ -179,7 +179,7 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                     {
                         unsigned pos = ( ( s_y - t_top )*b_w + s_x + col + row * b_w ) * b_d;
 
-                        if ( pos < b_w * b_h * b_d )
+                        if ( ( s_x < b_w ) && ( s_y < b_h ) )
                         {
                             unsigned grpos = t_pitc * row + col;
                             float gdf = ( face->glyph->bitmap.buffer[ grpos ] ) / 255.f;
