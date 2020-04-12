@@ -4,7 +4,9 @@
 #include <cstdlib>
 #include <cstring>
 
+#ifdef USE_OMP
 #include <omp.h>
+#endif /// of USE_OMP
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
