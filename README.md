@@ -1,6 +1,8 @@
 # FLFTRender
 A small code of libfreetype2 for FLTK RGB image.
 
+![screenshot v0.1.3.x](https://user-images.githubusercontent.com/6948225/79111706-00da9180-7db8-11ea-98ce-cef8a231c402.png)
+
 ## Requires
 
 * FLTK-1.3.(5)
