@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <cstring>
 
+
 #if defined(_WIN32) || defined(__linux__)
 #include <omp.h>
 #endif
@@ -14,6 +15,9 @@
 #include "FLFTRender.h"
 
 ////////////////////////////////////////////////////////////////////////////////
+
+#define __MIN(a,b) (((a)<(b))?(a):(b))
+#define __MAX(a,b) (((a)>(b))?(a):(b))
 
 #define FLFT_DEFAULT_SIZE       12
 #define FLFT_DEFAULT_COLOR      0xFFFFFFFF
@@ -40,6 +44,38 @@ FLFTRender::FLFTRender( const char* ttf )
                 {
                     loaded = true;
                 }
+            }
+        }
+    }
+
+    if ( libFL != NULL )
+    {
+        fflib = (void*)libFL;
+    }
+
+    if ( face != NULL )
+    {
+        fface = (void*)face;
+    }
+}
+
+FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz )
+ :  fface( NULL ),
+    fflib( NULL ),
+    ffsize( FLFT_DEFAULT_SIZE ),
+    fcolor( FLFT_DEFAULT_COLOR ),
+    loaded( false )
+{
+    FT_Library libFL = NULL;
+    FT_Face face = NULL;
+
+    if ( FT_Init_FreeType( &libFL ) == 0 )
+    {
+        if ( ( ttfbuff != NULL ) && ( ttfbuffsz > 0 ) )
+        {
+            if ( FT_New_Memory_Face( libFL, ttfbuff, ttfbuffsz, 0, &face ) == 0 )
+            {
+                loaded = true;
             }
         }
     }
@@ -106,7 +142,7 @@ unsigned FLFTRender::FontColor()
     return fcolor;
 }
 
-bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, const char* text  )
+bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, const char* text, Rect* rect )
 {
     if ( text == NULL )
         return false;
@@ -118,14 +154,14 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     {
         memset( wcsbuff, 0, tlen );
         mbstowcs( wcsbuff, text, tlen );
-        retb = RenderText( target, x, y, wcsbuff );
+        retb = RenderText( target, x, y, wcsbuff, rect );
         delete[] wcsbuff;
     }
 
     return retb;
 }
 
-bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, const wchar_t* text  )
+bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, const wchar_t* text, Rect* rect )
 {
     // check references are existed.
     if ( ( text == NULL ) || ( target == NULL ) )
@@ -157,6 +193,7 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     unsigned b_d = target->d();
     unsigned s_x = x;
     unsigned s_y = y + ffsize;
+    long     m_h = 0;
 
     float fcolf[4] = {0.f};
     col2rgbaf( fcolf[0], fcolf[1], fcolf[2], fcolf[3] );
@@ -172,19 +209,29 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                 unsigned t_rows = face->glyph->bitmap.rows;
                 unsigned t_cols = face->glyph->bitmap.width;
                 unsigned t_pitc = face->glyph->bitmap.pitch;
-                unsigned t_top  = face->glyph->bitmap_top;
+                long     t_top  = face->glyph->bitmap_top;
+
+#ifdef DEBUG_TTF_REGION
+                printf( "t_rows = %u, t_cols = %u, t_pitc = %u, t_top = %ld\n",
+                        t_rows, t_cols, t_pitc, t_top );
+                fflush(stdout);
+#endif /// of DEBUG_TTF_REGION
+                
+                //long t_h = t_rows + ( t_rows - t_top  );
+                long t_h = t_rows + t_top;
+
+                m_h = __MAX( m_h, t_h );
 
                 #pragma omp parallel for
                 for( unsigned row=0; row<t_rows; row++ )
                 {
                     for( unsigned col=0; col<t_cols; col++ )
                     {
-                        unsigned pos = ( ( s_y - t_top )*b_w + s_x + col + row * b_w ) * b_d;
-
-                        if ( ( s_x < b_w ) && ( s_y < b_h ) )
+                        if ( ( ( s_x + col ) < b_w ) && ( ( s_y + row ) < b_h ) )
                         {
+                            unsigned pos   = ( ( s_y - t_top )*b_w + s_x + col + row * b_w ) * b_d;
                             unsigned grpos = t_pitc * row + col;
-                            float gdf = ( face->glyph->bitmap.buffer[ grpos ] ) / 255.f;
+                            float    gdf   = ( face->glyph->bitmap.buffer[ grpos ] ) / 255.f;
 
                             switch( b_d )
                             {
@@ -248,6 +295,28 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                 s_x += face->glyph->advance.x >> 6;
                 s_y += face->glyph->advance.y >> 6;
             }
+        }
+        
+#ifdef DEBUG_TTF_REGION
+        printf( "y = %u, s_y = %u, m_h = %u\n", y, s_y - y, m_h );
+#endif /// of DEBUG_TTF_REGION
+
+        if ( rect != NULL )
+        {
+            rect->x = x;
+            rect->y = y;
+            rect->w = s_x - x;
+            /*
+            if ( (s_y-y ) < m_h )
+                rect->h = m_h + ( m_h - ( s_y - y ) ) + 1;
+            else
+                rect->h = s_y - y;
+            */
+            rect->h = m_h - ( ( m_h - ( s_y - y ) ) / 2 );
+#ifdef DEBUG_TTF_REGION
+            printf( "rect: %u,%u,%u,%u\n", rect->x, rect->y, rect->w, rect->h );
+            fflush( stdout );
+#endif /// of DEBUG_TTF_REGION
         }
 
         return true;

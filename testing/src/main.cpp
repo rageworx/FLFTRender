@@ -24,6 +24,13 @@ void drawLines( Fl_RGB_Image* img, unsigned y )
                          0x33FF33AF );
 }
 
+void drawRect( Fl_RGB_Image* img, FLFTRender::Rect * r )
+{
+    fl_imgtk::draw_rect( img,
+                         r->x, r->y, r->w, r->h,
+                         0x3333FF5F );
+}
+
 int main( int argc, char** argv )
 {
     if ( access( FNT_N, 0 ) != 0 )
@@ -60,34 +67,45 @@ int main( int argc, char** argv )
             FLFTRender flftr( FNT_N );
             if ( flftr.FontLoaded() == true )
             {
+                FLFTRender::Rect rect = {0};
+
                 flftr.FontSize( 75 );
                 flftr.FontColor( 0x3366FF3F );
                 flftr.RenderText( imgGradation, 10, 10,
-                                  "FLFTRender testing :" );
-
+                                  "FLFTRender testing :",
+                                  &rect );
+                drawRect( imgGradation, &rect );
                 flftr.FontSize( 40 );
                 flftr.FontColor( 0xFFFFFF7F );
+
 
                 unsigned putY = 100;
                 drawLines( imgGradation, putY );
                 flftr.RenderText( imgGradation, 10, putY,
-                                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&*()_+" );
+                                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&*()_+",
+                                  &rect );
+                drawRect( imgGradation, &rect );
                 putY += 50;
 
                 drawLines( imgGradation, putY );
                 flftr.RenderText( imgGradation, 10, putY,
-                                  "abcdefghijklmnopqrstuvwxyz 1234567890-=" );
+                                  "abcdefghijklmnopqrstuvwxyz 1234567890-=",
+                                  &rect );
+                drawRect( imgGradation, &rect );
                 putY += 50;
 
                 drawLines( imgGradation, putY );
                 flftr.RenderText( imgGradation, 10, putY,
-                                  L"가나다라마바사아자차카타파하, 대한민국 한글!" );
+                                  L"가나다라마바사아자차카타파하, 대한민국 한글!",
+                                  &rect );
+                drawRect( imgGradation, &rect );
                 putY += 50;
 
                 drawLines( imgGradation, putY );
                 flftr.RenderText( imgGradation, 10, putY,
-                                  L"※☆★○●◎◇◆□■△▲▽▼→←←↑↓↔〓㉠㉡㉢㉣㉤㉥㉦㉧㉨㉩㉪" );
-
+                                  L"※☆★○●◎◇◆□■△▲▽▼→←←↑↓↔〓㉠㉡㉢㉣㉤㉥㉦㉧㉨㉩㉪",
+                                  &rect );
+                drawRect( imgGradation, &rect );
                 putY += 50;
 
                 drawLines( imgGradation, putY );
@@ -98,7 +116,9 @@ int main( int argc, char** argv )
                 flftr.FontSize( 50 );
                 flftr.FontColor( 0x3366995F );
                 flftr.RenderText( imgGradation, 10, putY,
-                                  L"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψω" );
+                                  L"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψω",
+                                  &rect );
+                drawRect( imgGradation, &rect );
             }
 
             imgGradation->uncache();
