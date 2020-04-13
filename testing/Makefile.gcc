@@ -20,10 +20,10 @@ FLTK_CFG_I = $(shell ${FLTK_CFG} --cxxflags)
 FLTK_CFG_L = $(shell ${FLTK_CFG} --ldflags)
 
 # DEFINITIONS
-DEFS += -DUSE_OMP
+DEFS +=
 
 # Compiler optiops 
-COPTS = -O2
+COPTS = -O2 -fopenmp
 
 # CC FLAG
 CFLAGS += -I$(SRC_PATH)

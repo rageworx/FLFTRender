@@ -4,9 +4,9 @@
 #include <cstdlib>
 #include <cstring>
 
-#ifdef USE_OMP
+#if defined(_WIN32) || defined(__linux__)
 #include <omp.h>
-#endif /// of USE_OMP
+#endif
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
