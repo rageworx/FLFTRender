@@ -37,3 +37,4 @@
 # testing
 testing/bin
 testing/obj
+testing/*.ttf

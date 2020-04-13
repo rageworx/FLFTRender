@@ -1,0 +1,74 @@
+GCC=gcc
+CXX=g++
+AR=ar
+
+# Base PATH
+BASE_PATH = .
+SRC_PATH  = $(BASE_PATH)/src
+FLIMGTK_PATH = ../../fl_imgtk/lib
+
+# TARGET settings
+TARGET_PKG = FLFTRenderTest
+TARGET_DIR = ./bin
+TARGET_OBJ = ./obj
+
+# PKGCONFIGS
+FT2_CFG_I  = $(shell pkg-config freetype2 --cflags)
+FT2_CFG_L  = $(shell pkg-config freetype2 --libs)
+FLTK_CFG   = fltk-config --use-images
+FLTK_CFG_I = $(shell ${FLTK_CFG} --cxxflags)
+FLTK_CFG_L = $(shell ${FLTK_CFG} --ldflags)
+
+# DEFINITIONS
+DEFS += -DUSE_OMP
+
+# Compiler optiops 
+COPTS = -O2
+
+# CC FLAG
+CFLAGS += -I$(SRC_PATH)
+CFLAGS += -I../src
+CFLAGS += $(FLTK_CFG_I)
+CFLAGS += $(FT2_CFG_I)
+CFLAGS += -I$(FLIMGTK_PATH)
+CFLAGS += $(DEFS)
+CFLAGS += $(COPTS)
+
+# LINK FLAG
+#LFLAGS += -L/usr/local/lib
+LFLAGS += -lfl_imgtk
+LFLAGS += -lbz2
+LFLAGS += -lz
+LFLAGS += -L$(FLIMGTK_PATH)
+LFLAGS += $(FLTK_CFG_L)
+LFLAGS += $(FT2_CFG_L)
+LFLAGS += -lpthread
+
+# Sources
+SRCST = $(wildcard $(SRC_PATH)/*.cpp)
+SRCSF = $(wildcard ../src/*.cpp)
+
+# Objects
+OBJST = $(SRCST:$(SRC_PATH)/%.cpp=$(TARGET_OBJ)/%.o)
+OBJSF = $(SRCSF:../src/%.cpp=$(TARGET_OBJ)/%.o)
+
+all: prepare clean continue
+continue: $(TARGET_DIR)/$(TARGET_PKG)
+
+prepare:
+	@mkdir -p $(TARGET_DIR)
+	@mkdir -p $(TARGET_OBJ)
+
+clean:
+	@rm -rf $(TARGET_DIR)/$(TARGET_PKG)
+	@rm -rf $(TARGET_OBJ)/*.o
+
+$(OBJST): $(TARGET_OBJ)/%.o: $(SRC_PATH)/%.cpp
+	@$(CXX) $(CFLAGS) -c $< -o $@
+
+$(OBJSF): $(TARGET_OBJ)%.o: ../src/%.cpp
+	@$(CXX) $(CFLAGS) -c $< -o $@
+
+$(TARGET_DIR)/$(TARGET_PKG): $(OBJST) $(OBJSF)
+	$(CXX) $(OBJST) $(OBJSF) $(CFLAGS) $(LFLAGS) -o $@
+

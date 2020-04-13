@@ -14,56 +14,91 @@ using namespace std;
 
 #define FNT_N   "D2CodingBold-Ver1.3.2-20180524.ttf"
 
+void drawLines( Fl_RGB_Image* img, unsigned y )
+{
+    fl_imgtk::draw_line( img, 
+                         10, y, 1270, y,
+                         0xFF3333AF );
+    fl_imgtk::draw_line( img,
+                         10, y + 40, 1270, y + 40,
+                         0x33FF33AF );
+}
+
 int main( int argc, char** argv )
 {
+    if ( access( FNT_N, 0 ) != 0 )
+    {
+        printf( "ERROR: Font file %s need to run this testing.\n", FNT_N );
+        return 0;
+    }
+
+    Fl_RGB_Image* imgGradation = NULL;
+
+    // Just make an window ..
     Fl_Window window( 1280, 720, "Testing Window" );
     window.begin();
     
+        // Create a box for contians testing image.
         Fl_Box boxImage( 0, 0, 1280, 720 );
         boxImage.box( FL_NO_BOX );
 
-        Fl_RGB_Image* imgGradation = fl_imgtk::makegradation_h( 1280, 720, 0xAAAAAAFF, 0x333333FF, true );
+        // make a gradation background image and draw text on it.
+        imgGradation = fl_imgtk::makegradation_h( 1280, 720, 
+                                                  0xAAAAAAFF, 0x333333FF, 
+                                                  true );
         if ( imgGradation != NULL )
         {
+            for( unsigned cnt=10; cnt<1200; cnt+=10 )
+            {
+                fl_imgtk::draw_smooth_line( imgGradation,
+                                            cnt, 10, cnt + 60, 710,
+                                            0xEE88336F );
+            }
+
+
             // Write something on here.
             FLFTRender flftr( FNT_N );
             if ( flftr.FontLoaded() == true )
             {
+                flftr.FontSize( 75 );
+                flftr.FontColor( 0x3366FF3F );
+                flftr.RenderText( imgGradation, 10, 10,
+                                  "FLFTRender testing :" );
+
                 flftr.FontSize( 40 );
                 flftr.FontColor( 0xFFFFFF7F );
 
                 unsigned putY = 100;
-                fl_imgtk::draw_line( imgGradation, 
-                                     10, putY, 1270, putY, 
-                                     0xFF3333AF );
-                fl_imgtk::draw_line( imgGradation,
-                                     10, putY + 40, 1270, putY + 40,
-                                     0x33FF33AF );
+                drawLines( imgGradation, putY );
                 flftr.RenderText( imgGradation, 10, putY,
                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&*()_+" );
                 putY += 50;
 
-                fl_imgtk::draw_line( imgGradation, 
-                                     10, putY, 1270, putY, 
-                                     0xFF3333AF );
-                fl_imgtk::draw_line( imgGradation,
-                                     10, putY + 40, 1270, putY + 40,
-                                     0x33FF33AF );
+                drawLines( imgGradation, putY );
                 flftr.RenderText( imgGradation, 10, putY,
                                   "abcdefghijklmnopqrstuvwxyz 1234567890-=" );
                 putY += 50;
 
-                fl_imgtk::draw_line( imgGradation, 
-                                     10, putY, 1270, putY, 
-                                     0xFF3333AF );
-                fl_imgtk::draw_line( imgGradation,
-                                     10, putY + 40, 1270, putY + 40,
-                                     0x33FF33AF );
+                drawLines( imgGradation, putY );
                 flftr.RenderText( imgGradation, 10, putY,
                                   L"가나다라마바사아자차카타파하, 대한민국 한글!" );
                 putY += 50;
 
+                drawLines( imgGradation, putY );
+                flftr.RenderText( imgGradation, 10, putY,
+                                  L"※☆★○●◎◇◆□■△▲▽▼→←←↑↓↔〓㉠㉡㉢㉣㉤㉥㉦㉧㉨㉩㉪" );
 
+                putY += 50;
+
+                drawLines( imgGradation, putY );
+
+                putY += 100;
+                // alpha depth test ...
+                
+                flftr.FontSize( 50 );
+                flftr.FontColor( 0x3366995F );
+                flftr.RenderText( imgGradation, 10, putY,
+                                  L"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψω" );
             }
 
             imgGradation->uncache();
@@ -73,7 +108,12 @@ int main( int argc, char** argv )
     window.end();
     window.show();
 
-    return Fl::run();
+    int reti = Fl::run();
 
-    return 0;
+    if ( imgGradation != NULL )    
+    {
+        fl_imgtk::discard_user_rgb_image( imgGradation );
+    }
+
+    return reti;
 }
