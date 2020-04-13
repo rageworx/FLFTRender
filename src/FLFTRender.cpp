@@ -217,7 +217,6 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                 fflush(stdout);
 #endif /// of DEBUG_TTF_REGION
                 
-                //long t_h = t_rows + ( t_rows - t_top  );
                 long t_h = t_rows + t_top;
 
                 m_h = __MAX( m_h, t_h );
