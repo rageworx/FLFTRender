@@ -306,12 +306,6 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
             rect->x = x;
             rect->y = y;
             rect->w = s_x - x;
-            /*
-            if ( (s_y-y ) < m_h )
-                rect->h = m_h + ( m_h - ( s_y - y ) ) + 1;
-            else
-                rect->h = s_y - y;
-            */
             rect->h = m_h - ( ( m_h - ( s_y - y ) ) / 2 );
 #ifdef DEBUG_TTF_REGION
             printf( "rect: %u,%u,%u,%u\n", rect->x, rect->y, rect->w, rect->h );
