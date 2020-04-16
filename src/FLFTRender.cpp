@@ -4,6 +4,9 @@
 #include <cstdlib>
 #include <cstring>
 
+#if !defined(_WIN32)
+#include <wchar.h>
+#endif 
 
 #if defined(_WIN32) || defined(__linux__)
 #include <omp.h>
