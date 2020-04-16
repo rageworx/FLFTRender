@@ -29,7 +29,9 @@ FLFTRender::FLFTRender( const char* ttf, long idx )
     fflib( NULL ),
     ffsize( FLFT_DEFAULT_SIZE ),
     fcolor( FLFT_DEFAULT_COLOR ),
+    fkerning( false ),
     loaded( false ),
+    additionalspaceX( 0 ),
     ttfbuffer( NULL ),
     ttfbufferlen( 0 )
 {
@@ -59,6 +61,8 @@ FLFTRender::FLFTRender( const char* ttf, long idx )
     {
         fface = (void*)face;
     }
+    
+    init();
 }
 
 FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz, long idx )
@@ -66,7 +70,11 @@ FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz, long i
     fflib( NULL ),
     ffsize( FLFT_DEFAULT_SIZE ),
     fcolor( FLFT_DEFAULT_COLOR ),
-    loaded( false )
+    fkerning( false ),
+    loaded( false ),
+    additionalspaceX( 0 ),
+    ttfbuffer( NULL ),
+    ttfbufferlen( 0 )
 {
     FT_Library libFL = NULL;
     FT_Face face = NULL;
@@ -102,6 +110,8 @@ FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz, long i
     {
         fface = (void*)face;
     }
+    
+    init();
 }
 
 FLFTRender::~FLFTRender()
@@ -161,6 +171,17 @@ unsigned FLFTRender::FontColor()
     return fcolor;
 }
 
+void FLFTRender::AdditionalSpace( long av )
+{
+    if ( additionalspaceX != av )
+        additionalspaceX = av;
+}
+
+long FLFTRender::AdditionalSpace()
+{
+    return additionalspaceX;
+}
+
 bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, const char* text, Rect* rect )
 {
     if ( text == NULL )
@@ -213,6 +234,14 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     unsigned s_x = x;
     unsigned s_y = y + ffsize;
     long     m_h = 0;
+
+    if ( additionalspaceX != 0 )
+    {
+        if ( (long)s_x + additionalspaceX > 0 )
+        {
+            s_x += additionalspaceX;
+        }
+    }
 
     float fcolf[4] = {0.f};
     col2rgbaf( fcolf[0], fcolf[1], fcolf[2], fcolf[3] );
@@ -317,6 +346,32 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
 
                 s_x += face->glyph->advance.x >> 6;
                 s_y += face->glyph->advance.y >> 6;
+                
+                if ( additionalspaceX != 0 )
+                {
+                    if ( (long)s_x + additionalspaceX > 0 )
+                    {
+                        s_x += additionalspaceX;
+                    }
+                }
+
+            } /// of if Load char -
+            
+            // Try to get kerning -
+            if ( fkerning == true )
+            {
+                if ( ( llen > 3 ) && ( cnt > 0 ) && ( cnt + 2 < llen ) )
+                {
+                    FT_UInt   idx1 = FT_Get_Char_Index( face, text[ cnt-1 ] );
+                    FT_UInt   idx2 = FT_Get_Char_Index( face, text[ cnt+1 ] );
+                    FT_Vector kern = {0};
+                    
+                    if ( FT_Get_Kerning( face, idx1, idx2, FT_KERNING_DEFAULT, &kern ) == 0 )
+                    {
+                        s_x += kern.x >> 6;
+                        s_y += kern.y >> 6;
+                    }
+                }
             }
         }
         
@@ -330,6 +385,12 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
             rect->y = y;
             rect->w = s_x - x;
             rect->h = m_h - ( ( m_h - ( s_y - y ) ) / 2 );
+            
+            if ( additionalspaceX != 0 )
+            {
+                rect->x += additionalspaceX;
+                rect->w += abs( additionalspaceX ) * 2;
+            }
 #ifdef DEBUG_TTF_REGION
             printf( "rect: %u,%u,%u,%u\n", rect->x, rect->y, rect->w, rect->h );
             fflush( stdout );
@@ -348,6 +409,17 @@ void FLFTRender::col2rgbaf( float &r, float &g, float &b, float &a )
     g = (float)( ( fcolor & 0x00FF0000 ) >> 16 ) / 255.f;
     b = (float)( ( fcolor & 0x0000FF00 ) >>  8 ) / 255.f;
     a = (float)( fcolor & 0x000000FF ) / 255.f;
+}
+
+void FLFTRender::init()
+{
+    if ( ( fflib != NULL ) && ( fface != NULL ) )
+    {
+        FT_Library libFL = (FT_Library)fflib;
+        FT_Face face = (FT_Face)fface;
+        
+        fkerning = FT_HAS_KERNING( face );
+    }
 }
 
 // A static function --

@@ -12,7 +12,11 @@
 
 using namespace std;
 
+// D2CodingBold-Ver1.3.2
 #define FNT_N   "D2CodingBold-Ver1.3.2-20180524.ttf"
+
+// Arial Narrow
+//#define FNT_N   "ARIALN.TTF"
 
 void drawLines( Fl_RGB_Image* img, unsigned y )
 {
@@ -67,6 +71,8 @@ int main( int argc, char** argv )
             FLFTRender flftr( FNT_N );
             if ( flftr.FontLoaded() == true )
             {
+                flftr.AdditionalSpace( -3 );
+                
                 FLFTRender::Rect rect = {0};
 
                 flftr.FontSize( 75 );

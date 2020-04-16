@@ -15,8 +15,8 @@
 #include <FL/Fl_RGB_Image.H>
 
 // -----------------------------------------------------------------------------
-// Version : 0.1.4.10 [0]
-#define     FLFTRENDER_VERSION          0x0001040A
+// Version : 0.1.5.12 [0]
+#define     FLFTRENDER_VERSION          0x0001040C
 #define     FLFTRENDER_VERSION_EX       0x00000000
 
 // -----------------------------------------------------------------------------
@@ -44,6 +44,8 @@ class FLFTRender
         unsigned    FontSize();
         void        FontColor( unsigned rgba );
         unsigned    FontColor();
+        void        AdditionalSpace( long av );
+        long        AdditionalSpace();
 
     public:
         bool        RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, \
@@ -63,13 +65,16 @@ class FLFTRender
                                         
     protected:
         void        col2rgbaf( float &r, float &g, float &b, float &a );
+        void        init();
 
     protected:
         void*           fface;
         void*           fflib;
         unsigned        ffsize;
         unsigned        fcolor;
+        bool            fkerning;
         bool            loaded;
+        long            additionalspaceX;
         
     private:
         unsigned char*  ttfbuffer;
