@@ -55,6 +55,7 @@ class FLFTRender
                                 const wchar_t* text, \
                                 Rect* rect = NULL );
 
+#ifdef _WIN32
     public:
         /*
         ** A sataic function to load TTF font from Windows base file systems,
@@ -62,6 +63,7 @@ class FLFTRender
         */
         static bool Loader( const wchar_t* ttfpath, long idx, \
                             FLFTRender* &flftr );
+#endif /// of _wIN32
                                         
     protected:
         void        col2rgbaf( float &r, float &g, float &b, float &a );

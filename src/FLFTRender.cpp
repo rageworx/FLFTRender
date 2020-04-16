@@ -422,7 +422,8 @@ void FLFTRender::init()
     }
 }
 
-// A static function --
+#ifdef _WIN32
+// A static function for Load TTF from filesystem (Windows)
 bool FLFTRender::Loader( const wchar_t* ttfpath, long idx, FLFTRender* &flftr )
 {
     if ( _waccess( ttfpath, 0 ) == 0 )
@@ -461,3 +462,4 @@ bool FLFTRender::Loader( const wchar_t* ttfpath, long idx, FLFTRender* &flftr )
     
     return false;
 }
+#endif /// of _WIN32
