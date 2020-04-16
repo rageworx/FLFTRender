@@ -2,9 +2,12 @@
 #define __FLFTRender_H__
 
 /*******************************************************************************
-*  libfreetype2 toolkit for FLTK RGB uinmage
-*  =========================================
+*
+*  libfreetype2 toolkit for FLTK RGB inmage
+*  ========================================
 *  (C)2020, Raphael Kim
+*  [ source at ] https://github.com/rageworx/FLFTRender
+*
 *******************************************************************************/
 
 #include <FL/Fl.H>
@@ -12,8 +15,9 @@
 #include <FL/Fl_RGB_Image.H>
 
 // -----------------------------------------------------------------------------
-// Version : 0.1.3.8
-#define  FLFTRENDER_VERSION         0x00010308
+// Version : 0.1.4.10 [0]
+#define     FLFTRENDER_VERSION          0x0001040A
+#define     FLFTRENDER_VERSION_EX       0x00000000
 
 // -----------------------------------------------------------------------------
 
@@ -29,8 +33,9 @@ class FLFTRender
         }Rect;
         
     public:
-        FLFTRender( const char* ttf = NULL );
-        FLFTRender( const unsigned char* ttfbuff = NULL, unsigned ttfbuffsz = 0 );
+        FLFTRender( const char* ttf = NULL, long idx = 0 );
+        FLFTRender( const unsigned char* ttfbuff = NULL, \
+                    unsigned ttfbuffsz = 0, long idx = 0 );
         ~FLFTRender();
 
     public:
@@ -41,13 +46,21 @@ class FLFTRender
         unsigned    FontColor();
 
     public:
-        bool        RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, 
-                                const char* text, 
+        bool        RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, \
+                                const char* text, \
                                 Rect* rect = NULL );
-        bool        RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, 
-                                const wchar_t* text,
+        bool        RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, \
+                                const wchar_t* text, \
                                 Rect* rect = NULL );
 
+    public:
+        /*
+        ** A sataic function to load TTF font from Windows base file systems,
+        ** or aisan, or special charactor file name with wide charactor.
+        */
+        static bool Loader( const wchar_t* ttfpath, long idx, \
+                            FLFTRender* &flftr );
+                                        
     protected:
         void        col2rgbaf( float &r, float &g, float &b, float &a );
 
@@ -57,6 +70,10 @@ class FLFTRender
         unsigned        ffsize;
         unsigned        fcolor;
         bool            loaded;
+        
+    private:
+        unsigned char*  ttfbuffer;
+        unsigned        ttfbufferlen;
 };
 
 #endif // __FLFTRender_H__

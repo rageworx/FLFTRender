@@ -24,12 +24,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FLFTRender::FLFTRender( const char* ttf )
+FLFTRender::FLFTRender( const char* ttf, long idx )
  :  fface( NULL ),
     fflib( NULL ),
     ffsize( FLFT_DEFAULT_SIZE ),
     fcolor( FLFT_DEFAULT_COLOR ),
-    loaded( false )
+    loaded( false ),
+    ttfbuffer( NULL ),
+    ttfbufferlen( 0 )
 {
     FT_Library libFL = NULL;
     FT_Face face = NULL;
@@ -40,7 +42,7 @@ FLFTRender::FLFTRender( const char* ttf )
         {
             if ( access( ttf, 0 ) == 0 )
             {
-                if ( FT_New_Face( libFL, ttf, 0, &face ) == 0 )
+                if ( FT_New_Face( libFL, ttf, (FT_Long)idx, &face ) == 0 )
                 {
                     loaded = true;
                 }
@@ -59,7 +61,7 @@ FLFTRender::FLFTRender( const char* ttf )
     }
 }
 
-FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz )
+FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz, long idx )
  :  fface( NULL ),
     fflib( NULL ),
     ffsize( FLFT_DEFAULT_SIZE ),
@@ -73,9 +75,20 @@ FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz )
     {
         if ( ( ttfbuff != NULL ) && ( ttfbuffsz > 0 ) )
         {
-            if ( FT_New_Memory_Face( libFL, ttfbuff, ttfbuffsz, 0, &face ) == 0 )
+            int retstate = -1;
+            ttfbufferlen = ttfbuffsz;
+            ttfbuffer = new unsigned char[ ttfbufferlen ];
+            
+            if ( ttfbuffer != NULL )
             {
-                loaded = true;
+                memcpy( ttfbuffer, ttfbuff, ttfbufferlen );
+                retstate = FT_New_Memory_Face( libFL, ttfbuffer, ttfbufferlen, \
+                                               (FT_Long)idx, &face );
+                if ( retstate == 0 )
+                {
+                    loaded = true;
+                }
+
             }
         }
     }
@@ -106,6 +119,12 @@ FLFTRender::~FLFTRender()
     {
         FT_Done_FreeType( libFL );
         fflib = NULL;
+    }
+    
+    if ( ttfbuffer != NULL )
+    {
+        delete[] ttfbuffer;
+        ttfbufferlen = 0;
     }
 }
 
@@ -329,4 +348,44 @@ void FLFTRender::col2rgbaf( float &r, float &g, float &b, float &a )
     g = (float)( ( fcolor & 0x00FF0000 ) >> 16 ) / 255.f;
     b = (float)( ( fcolor & 0x0000FF00 ) >>  8 ) / 255.f;
     a = (float)( fcolor & 0x000000FF ) / 255.f;
+}
+
+// A static function --
+bool FLFTRender::Loader( const wchar_t* ttfpath, long idx, FLFTRender* &flftr )
+{
+    if ( _waccess( ttfpath, 0 ) == 0 )
+    {
+        FILE* fp = _wfopen( ttfpath, L"rb" );
+        if ( fp != NULL )
+        {
+            bool retb = false;
+            
+            fseek( fp, 0L, SEEK_END );
+            unsigned fsz = ftell( fp );
+            rewind( fp );
+            
+            if ( fsz > 0 )
+            {
+                unsigned char* buff = new unsigned char[fsz];
+                if ( buff != NULL )
+                {
+                    fread( buff, 1, fsz, fp );
+                    flftr = new FLFTRender( buff, fsz, idx );
+                    if ( flftr != NULL )
+                    {
+                        if ( flftr->FontLoaded() == true )
+                        {
+                            retb = true;
+                        }
+                    }
+                }
+            }
+
+            fclose( fp );
+            
+            return retb;
+        }
+    }
+    
+    return false;
 }
