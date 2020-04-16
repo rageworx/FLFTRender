@@ -185,6 +185,69 @@ long FLFTRender::AdditionalSpace()
     return additionalspaceX;
 }
 
+unsigned FLFTRender::Faces()
+{
+    if ( fface != NULL )
+    {
+        FT_Face face = (FT_Face)fface;
+
+        if ( face->num_faces > 0 )
+            return face->num_faces;
+    }
+    
+    return 0;
+}
+
+unsigned FLFTRender::Glyphs()
+{
+    if ( fface != NULL )
+    {
+        FT_Face face = (FT_Face)fface;
+        
+        if ( face->num_glyphs > 0 )
+            return face->num_glyphs;
+    }
+    
+    return 0;
+}
+
+unsigned FLFTRender::Charmaps()
+{
+    if ( fface != NULL )
+    {
+        FT_Face face = (FT_Face)fface;
+        
+        if ( face->num_charmaps > 0 )
+            return face->num_charmaps;
+    }
+    
+    return 0;    
+}
+
+const char* FLFTRender::FamilyName()
+{
+    if ( fface != NULL )
+    {
+        FT_Face face = (FT_Face)fface;
+        
+        return face->family_name;
+    }
+    
+    return NULL;
+}
+
+const char* FLFTRender::StyleName()
+{
+    if ( fface != NULL )
+    {
+        FT_Face face = (FT_Face)fface;
+        
+        return face->style_name;
+    }
+    
+    return NULL;
+}
+
 bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, const char* text, Rect* rect )
 {
     if ( text == NULL )

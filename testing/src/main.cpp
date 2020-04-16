@@ -71,7 +71,13 @@ int main( int argc, char** argv )
             FLFTRender flftr( FNT_N );
             if ( flftr.FontLoaded() == true )
             {
-                flftr.AdditionalSpace( -3 );
+                printf( "Font Info : \n" );
+                printf( " - [%s %s] has %u face(s), %u glyphs and %u charmaps.\n", 
+                        flftr.FamilyName(), flftr.StyleName(),
+                        flftr.Faces(), flftr.Glyphs(), flftr.Charmaps() );
+                fflush( stdout );
+                
+                flftr.AdditionalSpace( 4 );
                 
                 FLFTRender::Rect rect = {0};
 
@@ -119,6 +125,7 @@ int main( int argc, char** argv )
                 putY += 100;
                 // alpha depth test ...
                 
+                flftr.AdditionalSpace( 0 );
                 flftr.FontSize( 50 );
                 flftr.FontColor( 0x3366995F );
                 flftr.RenderText( imgGradation, 10, putY,

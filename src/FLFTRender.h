@@ -15,8 +15,8 @@
 #include <FL/Fl_RGB_Image.H>
 
 // -----------------------------------------------------------------------------
-// Version : 0.1.5.12 [0]
-#define     FLFTRENDER_VERSION          0x0001050C
+// Version : 0.1.6.14 [0]
+#define     FLFTRENDER_VERSION          0x0001060E
 #define     FLFTRENDER_VERSION_EX       0x00000000
 
 // -----------------------------------------------------------------------------
@@ -46,6 +46,13 @@ class FLFTRender
         unsigned    FontColor();
         void        AdditionalSpace( long av );
         long        AdditionalSpace();
+        
+    public:
+        unsigned    Faces();
+        unsigned    Glyphs();
+        unsigned    Charmaps();
+        const char* FamilyName();
+        const char* StyleName();
 
     public:
         bool        RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, \
