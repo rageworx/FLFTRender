@@ -278,6 +278,11 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
     // Casting ...
     FT_Library libFL = (FT_Library)fflib;
     FT_Face face = (FT_Face)fface;
+    
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = 0;
+    rect.h = 0;
 
     if ( ( fflib == NULL ) || ( fface == NULL ) )
         return false;
@@ -298,7 +303,8 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
 
     for( unsigned cnt=0; cnt<llen; cnt++ )
     {
-        if ( FT_Load_Char( face, text[cnt], FT_LOAD_NO_BITMAP ) == 0 )
+        FT_Error err =  FT_Load_Char( face, text[cnt], FT_LOAD_NO_BITMAP );
+        if ( err == 0 )
         {
             unsigned t_rows = face->glyph->bitmap.rows;
             unsigned t_cols = face->glyph->bitmap.width;
@@ -308,6 +314,11 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
             long t_h = t_rows + t_top;
 
             m_h = __MAX( m_h, t_h );
+            
+#ifdef DEBUG_TTF_REGION
+            printf( "t_rows = %u, t_cols = %u, t_pitc = %u, t_top = %ld\n",
+                    t_rows, t_cols, t_pitc, t_top );
+#endif /// of DEBUG_TTF_REGION            
 
             s_x += face->glyph->advance.x >> 6;
             s_y += face->glyph->advance.y >> 6;
@@ -321,6 +332,17 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
             }
 
         } /// of if Load char -
+        else
+        {
+#ifdef DEBUG
+            printf( "failed to FL_Load_Char(), text = %C ( %u ), return error = %d\n",
+                    text[cnt], (unsigned)text[cnt], err );
+            printf( "Error : %s\n", FT_Error_String( err ) );
+        
+            fflush(stdout);        
+#endif
+            return false;
+        }
         
         // Try to get kerning -
         if ( fkerning == true )
@@ -341,7 +363,7 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
     }
     
 #ifdef DEBUG_TTF_REGION
-    printf( "y = %u, s_y = %u, m_h = %u\n", y, s_y - y, m_h );
+    printf( "s_y = %u, m_h = %u\n", s_y, m_h );
 #endif /// of DEBUG_TTF_REGION
 
     rect.x = 0;
@@ -431,7 +453,8 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     {
         for( unsigned cnt=0; cnt<llen; cnt++ )
         {
-            if ( FT_Load_Char( face, text[cnt], FT_LOAD_RENDER ) == 0 )
+            FT_Error err = FT_Load_Char( face, text[cnt], FT_LOAD_RENDER );
+            if ( err == 0 )
             {
                 unsigned t_rows = face->glyph->bitmap.rows;
                 unsigned t_cols = face->glyph->bitmap.width;
@@ -453,7 +476,8 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                 {
                     for( unsigned col=0; col<t_cols; col++ )
                     {
-                        if ( ( ( s_x + col ) < b_w ) && ( ( s_y + row ) < b_h ) )
+                        //if ( ( ( s_x + col ) < b_w ) && ( ( s_y + row ) < b_h ) )
+                        if ( ( ( s_x + col ) < b_w ) && ( ( s_y - t_top + row ) < b_h ) )
                         {
                             unsigned pos   = ( ( s_y - t_top )*b_w + s_x + col + row * b_w ) * b_d;
                             unsigned grpos = t_pitc * row + col;
@@ -535,6 +559,16 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                 }
 
             } /// of if Load char -
+            else
+            {
+#ifdef DEBUG
+                printf( "failed to FL_Load_Char(), text = %C ( %u ), return error = %d\n",
+                        text[cnt], (unsigned)text[cnt], err );
+                printf( "Error : %s\n", FT_Error_String( err ) );
+            
+                fflush(stdout);        
+#endif                
+            }
             
             // Try to get kerning -
             if ( fkerning == true )
@@ -599,6 +633,9 @@ void FLFTRender::init()
         
         // detect kerning flag existed ?
         fkerning = FT_HAS_KERNING( face );
+        
+        // bug_fix: set default font size
+        FT_Set_Pixel_Sizes( face, 0, ffsize );
     }
 }
 

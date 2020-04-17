@@ -161,6 +161,19 @@ int main( int argc, char** argv )
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 
+                putY += 100;
+                // alpha depth over-width test ...
+                testwstr = L"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψω";
+                flftr.AdditionalSpace( 8 );                
+                flftr.FontSize( 80 );
+                flftr.FontColor( 0x6633995F );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20407F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+
                 testwstr.clear();
             }
 

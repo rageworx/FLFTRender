@@ -18,10 +18,10 @@
 #endif /// of _WIN32
 
 // -----------------------------------------------------------------------------
-// Version : 0.1.7.16 [0]
-#define     FLFTRENDER_VERSION_S        "0.1.7.16"
-#define     FLFTRENDER_VERSION          0x00010710
-#define     FLFTRENDER_VERSION_EX       0x00000010
+// Version : 0.1.7.17 [0]
+#define     FLFTRENDER_VERSION_S        "0.1.7.17"
+#define     FLFTRENDER_VERSION          0x00010711
+#define     FLFTRENDER_VERSION_EX       0x00000011
 
 // -----------------------------------------------------------------------------
 
