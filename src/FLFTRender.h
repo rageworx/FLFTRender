@@ -5,7 +5,7 @@
 *
 *  libfreetype2 toolkit for FLTK RGB inmage
 *  ========================================
-*  (C)2020, Raphael Kim
+*  (C)Copyrighted 2020, Raphael Kim
 *  [ source at ] https://github.com/rageworx/FLFTRender
 *
 *******************************************************************************/
@@ -13,11 +13,15 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Image.H>
 #include <FL/Fl_RGB_Image.H>
+#ifndef _WIN32
+#include <wchar.h>
+#endif /// of _WIN32
 
 // -----------------------------------------------------------------------------
-// Version : 0.1.6.14 [0]
-#define     FLFTRENDER_VERSION          0x0001060E
-#define     FLFTRENDER_VERSION_EX       0x00000000
+// Version : 0.1.7.16 [0]
+#define     FLFTRENDER_VERSION_S        "0.1.7.16"
+#define     FLFTRENDER_VERSION          0x00010710
+#define     FLFTRENDER_VERSION_EX       0x00000010
 
 // -----------------------------------------------------------------------------
 
@@ -55,6 +59,8 @@ class FLFTRender
         const char* StyleName();
 
     public:
+        bool        MeasureText( const char* text, Rect &rect );
+        bool        MeasureText( const wchar_t* text, Rect &rect );
         bool        RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, \
                                 const char* text, \
                                 Rect* rect = NULL );
@@ -62,7 +68,6 @@ class FLFTRender
                                 const wchar_t* text, \
                                 Rect* rect = NULL );
 
-#ifdef _WIN32
     public:
         /*
         ** A sataic function to load TTF font from Windows base file systems,
@@ -70,7 +75,6 @@ class FLFTRender
         */
         static bool Loader( const wchar_t* ttfpath, long idx, \
                             FLFTRender* &flftr );
-#endif /// of _wIN32
                                         
     protected:
         void        col2rgbaf( float &r, float &g, float &b, float &a );

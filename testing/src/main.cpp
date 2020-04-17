@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <string>
 
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
@@ -28,11 +29,11 @@ void drawLines( Fl_RGB_Image* img, unsigned y )
                          0x33FF33AF );
 }
 
-void drawRect( Fl_RGB_Image* img, FLFTRender::Rect * r )
+void drawRect( Fl_RGB_Image* img, FLFTRender::Rect * r, unsigned col = 0x3333FF5F)
 {
     fl_imgtk::draw_rect( img,
                          r->x, r->y, r->w, r->h,
-                         0x3333FF5F );
+                         col );
 }
 
 int main( int argc, char** argv )
@@ -43,7 +44,7 @@ int main( int argc, char** argv )
         return 0;
     }
 
-    Fl_RGB_Image* imgGradation = NULL;
+    Fl_RGB_Image* imgGrad = NULL;
 
     // Just make an window ..
     Fl_Window window( 1280, 720, "Testing Window" );
@@ -54,18 +55,23 @@ int main( int argc, char** argv )
         boxImage.box( FL_NO_BOX );
 
         // make a gradation background image and draw text on it.
-        imgGradation = fl_imgtk::makegradation_h( 1280, 720, 
-                                                  0xAAAAAAFF, 0x333333FF, 
-                                                  true );
-        if ( imgGradation != NULL )
+        imgGrad = fl_imgtk::makegradation_h( window.w(), window.h(),
+                                             0xAAAAAAFF, 0x333333FF, 
+                                             true );
+        if ( imgGrad != NULL )
         {
-            for( unsigned cnt=10; cnt<1200; cnt+=10 )
+            unsigned slope = 60;
+            unsigned lstart = 10;
+            unsigned lend = window.w() - slope - 10;
+            unsigned ly = 10;
+            unsigned lh = window.h() - 10;
+            
+            for( unsigned cnt=lstart; cnt<lend; cnt+=10 )
             {
-                fl_imgtk::draw_smooth_line( imgGradation,
-                                            cnt, 10, cnt + 60, 710,
+                fl_imgtk::draw_smooth_line( imgGrad,
+                                            cnt, ly, cnt + slope, lh,
                                             0xEE88336F );
             }
-
 
             // Write something on here.
             FLFTRender flftr( FNT_N );
@@ -77,75 +83,99 @@ int main( int argc, char** argv )
                         flftr.Faces(), flftr.Glyphs(), flftr.Charmaps() );
                 fflush( stdout );
                 
+                string teststr;
+                wstring testwstr;
+                
                 flftr.AdditionalSpace( 4 );
                 
+                FLFTRender::Rect mrect = {0};
                 FLFTRender::Rect rect = {0};
 
+                teststr = "FLFTRender testing :";
                 flftr.FontSize( 75 );
                 flftr.FontColor( 0x3366FF3F );
-                flftr.RenderText( imgGradation, 10, 10,
-                                  "FLFTRender testing :",
-                                  &rect );
-                drawRect( imgGradation, &rect );
+                flftr.MeasureText( teststr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = 10;
+                drawRect( imgGrad, &mrect, 0xFF20407F );
+                flftr.RenderText( imgGrad, 10, 10, teststr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
                 flftr.FontSize( 40 );
                 flftr.FontColor( 0xFFFFFF7F );
 
-
                 unsigned putY = 100;
-                drawLines( imgGradation, putY );
-                flftr.RenderText( imgGradation, 10, putY,
-                                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&*()_+",
-                                  &rect );
-                drawRect( imgGradation, &rect );
+                
+                teststr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&*()_+";
+                drawLines( imgGrad, putY );
+                flftr.MeasureText( teststr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20407F );
+                flftr.RenderText( imgGrad, 10, putY, teststr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
                 putY += 50;
 
-                drawLines( imgGradation, putY );
-                flftr.RenderText( imgGradation, 10, putY,
-                                  "abcdefghijklmnopqrstuvwxyz 1234567890-=",
-                                  &rect );
-                drawRect( imgGradation, &rect );
+                teststr = "abcdefghijklmnopqrstuvwxyz 1234567890-=";
+                drawLines( imgGrad, putY );
+                flftr.MeasureText( teststr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20407F );
+                flftr.RenderText( imgGrad, 10, putY, teststr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
                 putY += 50;
 
-                drawLines( imgGradation, putY );
-                flftr.RenderText( imgGradation, 10, putY,
-                                  L"가나다라마바사아자차카타파하, 대한민국 한글!",
-                                  &rect );
-                drawRect( imgGradation, &rect );
+                teststr.clear();
+                testwstr = L"가나다라마바사아자차카타파하, 대한민국 한글!";
+                drawLines( imgGrad, putY );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20407F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
                 putY += 50;
 
-                drawLines( imgGradation, putY );
-                flftr.RenderText( imgGradation, 10, putY,
-                                  L"※☆★○●◎◇◆□■△▲▽▼→←←↑↓↔〓㉠㉡㉢㉣㉤㉥㉦㉧㉨㉩㉪",
-                                  &rect );
-                drawRect( imgGradation, &rect );
+                testwstr = L"※☆★○●◎◇◆□■△▲▽▼→←←↑↓↔〓㉠㉡㉢㉣㉤㉥㉦㉧㉨㉩㉪";
+                drawLines( imgGrad, putY );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20407F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
                 putY += 50;
 
-                drawLines( imgGradation, putY );
+                drawLines( imgGrad, putY );
 
                 putY += 100;
                 // alpha depth test ...
-                
+                testwstr = L"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψω";
                 flftr.AdditionalSpace( 0 );
                 flftr.FontSize( 50 );
                 flftr.FontColor( 0x3366995F );
-                flftr.RenderText( imgGradation, 10, putY,
-                                  L"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψω",
-                                  &rect );
-                drawRect( imgGradation, &rect );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20407F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+                
+                testwstr.clear();
             }
 
-            imgGradation->uncache();
+            imgGrad->uncache();
 
-            boxImage.image( imgGradation );
+            boxImage.image( imgGrad );
         }
     window.end();
     window.show();
 
     int reti = Fl::run();
 
-    if ( imgGradation != NULL )    
+    if ( imgGrad != NULL )    
     {
-        fl_imgtk::discard_user_rgb_image( imgGradation );
+        fl_imgtk::discard_user_rgb_image( imgGrad );
     }
 
     return reti;
