@@ -36,7 +36,10 @@ FLFTRender::FLFTRender( const char* ttf, long idx )
     loaded( false ),
     additionalspaceX( 0 ),
     ttfbuffer( NULL ),
-    ttfbufferlen( 0 )
+    ttfbufferlen( 0 ),
+    flagBold( false ),
+    flagItalic( false ),
+    flagUnderline( false )
 {
     FT_Library libFL = NULL;
     FT_Face face = NULL;
@@ -77,7 +80,10 @@ FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz, long i
     loaded( false ),
     additionalspaceX( 0 ),
     ttfbuffer( NULL ),
-    ttfbufferlen( 0 )
+    ttfbufferlen( 0 ),
+    flagBold( false ),
+    flagItalic( false ),
+    flagUnderline( false )
 {
     FT_Library libFL = NULL;
     FT_Face face = NULL;
@@ -172,6 +178,36 @@ void FLFTRender::FontColor( unsigned rgba )
 unsigned FLFTRender::FontColor()
 {
     return fcolor;
+}
+
+void FLFTRender::Bold( bool onoff )
+{
+    flagBold = onoff;
+}
+
+bool FLFTRender::Bold()
+{
+    return flagBold;
+}
+
+void FLFTRender::Italic( bool onoff )
+{
+    flagItalic = onoff;
+}
+
+bool FLFTRender::Italic()
+{
+    return flagItalic;
+}
+
+void FLFTRender::Underline( bool onoff )
+{
+    flagUnderline = onoff;
+}
+
+bool FLFTRender::Underline()
+{
+    return flagUnderline;
 }
 
 void FLFTRender::AdditionalSpace( long av )
@@ -305,7 +341,7 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
     {
         FT_Error err =  FT_Load_Char( face, text[cnt], FT_LOAD_NO_BITMAP );
         if ( err == 0 )
-        {
+        {                        
             unsigned t_rows = face->glyph->bitmap.rows;
             unsigned t_cols = face->glyph->bitmap.width;
             unsigned t_pitc = face->glyph->bitmap.pitch;
@@ -428,13 +464,14 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
         return false;
 
     // make buffer enough.
-    unsigned llen = wcslen( text );
-    unsigned b_w = target->w();
-    unsigned b_h = target->h();
-    unsigned b_d = target->d();
-    unsigned s_x = x;
-    unsigned s_y = y + ffsize;
-    long     m_h = 0;
+    unsigned    llen = wcslen( text );
+    unsigned    b_w = target->w();
+    unsigned    b_h = target->h();
+    unsigned    b_d = target->d();
+    unsigned    s_x = x;
+    unsigned    s_y = y + ffsize;
+    long        m_h = 0;
+    FT_Vector   pen = {0};
 
     if ( additionalspaceX != 0 )
     {
@@ -452,20 +489,29 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     if( renderbuffer != NULL )
     {
         for( unsigned cnt=0; cnt<llen; cnt++ )
-        {
+        {            
+            if ( flagItalic == true )
+            {
+                pen.x = s_x;
+                pen.y = s_y;
+                
+                FT_Matrix transform = {0x10000, 0x06000, 0x00000, 0x10000};
+                FT_Set_Transform( face, &transform, &pen );
+            }
+            
             FT_Error err = FT_Load_Char( face, text[cnt], FT_LOAD_RENDER );
             if ( err == 0 )
-            {
+            {                
                 unsigned t_rows = face->glyph->bitmap.rows;
                 unsigned t_cols = face->glyph->bitmap.width;
                 unsigned t_pitc = face->glyph->bitmap.pitch;
                 long     t_top  = face->glyph->bitmap_top;
 
-#ifdef DEBUG_TTF_REGION
+#ifdef DEBUG_TTF_RENDER_REGION
                 printf( "t_rows = %u, t_cols = %u, t_pitc = %u, t_top = %ld\n",
                         t_rows, t_cols, t_pitc, t_top );
                 fflush(stdout);
-#endif /// of DEBUG_TTF_REGION
+#endif /// of DEBUG_TTF_RENDER_REGION
                 
                 long t_h = t_rows + t_top;
 
@@ -502,13 +548,13 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                                     float gf = (float)( renderbuffer[ pos + 1 ] ) / 255.f;
                                     float bf = (float)( renderbuffer[ pos + 2 ] ) / 255.f;
 
-                                    rf += ( fcolf[0] * fcolf[3] * gdf );
+                                    rf += ( fcolf[0] + fcolf[3] * gdf );
                                     if ( rf > 1.f ) rf = 1.f;
 
-                                    gf += ( fcolf[1] * fcolf[3] * gdf );
+                                    gf += ( fcolf[1] + fcolf[3] * gdf );
                                     if ( gf > 1.f ) gf = 1.f;
 
-                                    bf += ( fcolf[2] * fcolf[3] * gdf );
+                                    bf += ( fcolf[2] + fcolf[3] * gdf );
                                     if ( bf > 1.f ) bf = 1.f;
 
                                     renderbuffer[ pos + 0 ] = (unsigned char)(rf * 255.f);
@@ -588,9 +634,9 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
             }
         }
         
-#ifdef DEBUG_TTF_REGION
+#ifdef DEBUG_TTF_RENDER_REGION
         printf( "y = %u, s_y = %u, m_h = %u\n", y, s_y - y, m_h );
-#endif /// of DEBUG_TTF_REGION
+#endif /// of DEBUG_TTF_RENDER_REGION
 
         if ( rect != NULL )
         {
@@ -604,10 +650,10 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                 rect->x += additionalspaceX;
                 rect->w += abs( additionalspaceX ) * 2;
             }
-#ifdef DEBUG_TTF_REGION
+#ifdef DEBUG_TTF_RENDER_REGION
             printf( "rect: %u,%u,%u,%u\n", rect->x, rect->y, rect->w, rect->h );
             fflush( stdout );
-#endif /// of DEBUG_TTF_REGION
+#endif /// of DEBUG_TTF_RENDER_REGION
         }
 
         return true;

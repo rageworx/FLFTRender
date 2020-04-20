@@ -18,10 +18,10 @@
 #endif /// of _WIN32
 
 // -----------------------------------------------------------------------------
-// Version : 0.1.7.17 [0]
-#define     FLFTRENDER_VERSION_S        "0.1.7.17"
-#define     FLFTRENDER_VERSION          0x00010711
-#define     FLFTRENDER_VERSION_EX       0x00000011
+// Version : 0.1.8.21 [0]
+#define     FLFTRENDER_VERSION_S        "0.1.8.21"
+#define     FLFTRENDER_VERSION          0x00010815
+#define     FLFTRENDER_VERSION_EX       0x00000015
 
 // -----------------------------------------------------------------------------
 
@@ -48,6 +48,12 @@ class FLFTRender
         unsigned    FontSize();
         void        FontColor( unsigned rgba );
         unsigned    FontColor();
+        void        Bold( bool onoff );
+        bool        Bold();
+        void        Italic( bool onoff );
+        bool        Italic();
+        void        Underline( bool onoff );
+        bool        Underline();
         void        AdditionalSpace( long av );
         long        AdditionalSpace();
         
@@ -88,6 +94,9 @@ class FLFTRender
         bool            fkerning;
         bool            loaded;
         long            additionalspaceX;
+        bool            flagBold;
+        bool            flagItalic;
+        bool            flagUnderline;
         
     private:
         unsigned char*  ttfbuffer;
