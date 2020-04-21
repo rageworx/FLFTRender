@@ -23,10 +23,10 @@ void drawLines( Fl_RGB_Image* img, unsigned y )
 {
     fl_imgtk::draw_line( img, 
                          10, y, 1270, y,
-                         0xFF3333AF );
+                         0xFF33335F );
     fl_imgtk::draw_line( img,
                          10, y + 40, 1270, y + 40,
-                         0x33FF33AF );
+                         0x33FF335F );
 }
 
 void drawRect( Fl_RGB_Image* img, FLFTRender::Rect * r, unsigned col = 0x3333FF5F)
@@ -146,9 +146,6 @@ int main( int argc, char** argv )
                 drawRect( imgGrad, &rect );
                 putY += 50;
 
-                drawLines( imgGrad, putY );
-
-                putY += 100;
                 // alpha depth test ...
                 testwstr = L"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψω";
                 flftr.AdditionalSpace( 0 );
@@ -161,11 +158,11 @@ int main( int argc, char** argv )
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 
-                putY += 100;
+                putY += 70;
                 // alpha depth over-width test ...
                 testwstr = L"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψω";
                 flftr.AdditionalSpace( 8 );                
-                flftr.FontSize( 80 );
+                flftr.FontSize( 20 );
                 flftr.FontColor( 0x6633995F );
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
@@ -173,6 +170,69 @@ int main( int argc, char** argv )
                 drawRect( imgGrad, &mrect, 0xFF20407F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
+
+                putY += 30;
+                // Bold
+                testwstr = L"Bold text : 두꺼운 텍스트";
+                flftr.AdditionalSpace( 0 );
+                flftr.Bold( true );
+                flftr.Italic( false );
+                flftr.FontSize( 20 );
+                flftr.FontColor( 0xFFFFFFEF );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20407F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+
+                putY += 30;
+                // Bold
+                testwstr = L"Thin text : 얇은 텍스트";
+                flftr.AdditionalSpace( 0 );
+                flftr.Bold( true );
+                flftr.BoldRatio( 0.5f );
+                flftr.Italic( false );
+                flftr.FontSize( 20 );
+                flftr.FontColor( 0xFFFFFFEF );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20407F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+
+                putY += 30;
+                // Italic
+                testwstr = L"Italic text : 이탤릭 텍스트";
+                flftr.AdditionalSpace( 0 );
+                flftr.Bold( false );
+                flftr.Italic( true );
+                flftr.FontSize( 20 );
+                flftr.FontColor( 0xFFFFFFEF );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20407F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+
+                putY += 30;
+                // Italic + Bold
+                testwstr = L"Italic bold text : 이탤릭 두꺼운 텍스트";
+                flftr.AdditionalSpace( 0 );
+                flftr.Bold( true );
+                flftr.BoldRatio( 1.4f );
+                flftr.Italic( true );
+                flftr.FontSize( 40 );
+                flftr.FontColor( 0xFFFFFFEF );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20407F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+
 
                 testwstr.clear();
             }

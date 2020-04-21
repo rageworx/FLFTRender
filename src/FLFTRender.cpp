@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <cmath>
 
 #if !defined(_WIN32)
 #include <wchar.h>
@@ -24,6 +25,10 @@
 
 #define FLFT_DEFAULT_SIZE       12
 #define FLFT_DEFAULT_COLOR      0xFFFFFFFF
+#define FLFT_PI_F               3.1415926535897932384626433f
+#define FLFT_DEFAULT_BOLDR      1.25f
+#define FLFT_MAX_BOLDR          10.0f
+#define FLFT_MIN_BOLDR          0.05f
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +44,7 @@ FLFTRender::FLFTRender( const char* ttf, long idx )
     ttfbufferlen( 0 ),
     flagBold( false ),
     flagItalic( false ),
-    flagUnderline( false )
+    flagBoldRatio( FLFT_DEFAULT_BOLDR )
 {
     FT_Library libFL = NULL;
     FT_Face face = NULL;
@@ -83,7 +88,7 @@ FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz, long i
     ttfbufferlen( 0 ),
     flagBold( false ),
     flagItalic( false ),
-    flagUnderline( false )
+    flagBoldRatio( FLFT_DEFAULT_BOLDR )
 {
     FT_Library libFL = NULL;
     FT_Face face = NULL;
@@ -190,6 +195,24 @@ bool FLFTRender::Bold()
     return flagBold;
 }
 
+void FLFTRender::BoldRatio( float r )
+{
+    if ( ( r >= FLFT_MIN_BOLDR ) && ( r <= FLFT_MAX_BOLDR ) )
+    {
+        flagBoldRatio = r;
+    }
+}
+
+float FLFTRender::BoldRatio()
+{
+    return flagBoldRatio;
+}
+
+float FLFTRender::DefaultBoldRatio()
+{
+    return FLFT_DEFAULT_BOLDR;
+}
+
 void FLFTRender::Italic( bool onoff )
 {
     flagItalic = onoff;
@@ -198,16 +221,6 @@ void FLFTRender::Italic( bool onoff )
 bool FLFTRender::Italic()
 {
     return flagItalic;
-}
-
-void FLFTRender::Underline( bool onoff )
-{
-    flagUnderline = onoff;
-}
-
-bool FLFTRender::Underline()
-{
-    return flagUnderline;
 }
 
 void FLFTRender::AdditionalSpace( long av )
@@ -324,10 +337,11 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
         return false;
     
     // make buffer enough.
-    unsigned llen = wcslen( text );
-    unsigned s_x = 0;
-    unsigned s_y = ffsize;
-    long     m_h = 0;
+    unsigned    llen = wcslen( text );
+    unsigned    s_x = 0;
+    unsigned    s_y = ffsize;
+    long        m_h = 0;
+    FT_Vector   pen = {0};
 
     if ( additionalspaceX != 0 )
     {
@@ -339,6 +353,29 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
 
     for( unsigned cnt=0; cnt<llen; cnt++ )
     {
+        if ( ( flagItalic == true ) || ( flagBold == true ) )
+        {
+            pen.x = s_x;
+            pen.y = s_y;
+            
+            FT_Matrix tfmat  = { 0x10000, 0, 0, 0x10000 };
+            
+            if ( flagBold == true )
+            {
+                tfmat.xx = (FT_Fixed)( tfmat.xx * flagBoldRatio );
+                tfmat.yx = (FT_Fixed)( tfmat.xy * flagBoldRatio );
+            }
+            
+            if ( flagItalic == true )
+            {
+                float shear = tan( ( 90.f - 75.f ) / 180.f * FLFT_PI_F );
+                
+                tfmat.xy = (FT_Fixed)( shear * 0x10000 );
+            }
+                            
+            FT_Set_Transform( face, &tfmat, &pen );
+        }        
+        
         FT_Error err =  FT_Load_Char( face, text[cnt], FT_LOAD_NO_BITMAP );
         if ( err == 0 )
         {                        
@@ -473,6 +510,11 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     long        m_h = 0;
     FT_Vector   pen = {0};
 
+    if ( ( flagItalic == true ) || ( flagBold == true ) )
+    {
+        s_y += ffsize / 2;
+    }
+
     if ( additionalspaceX != 0 )
     {
         if ( (long)s_x + additionalspaceX > 0 )
@@ -490,13 +532,27 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     {
         for( unsigned cnt=0; cnt<llen; cnt++ )
         {            
-            if ( flagItalic == true )
+            if ( ( flagItalic == true ) || ( flagBold == true ) )
             {
                 pen.x = s_x;
                 pen.y = s_y;
                 
-                FT_Matrix transform = {0x10000, 0x06000, 0x00000, 0x10000};
-                FT_Set_Transform( face, &transform, &pen );
+                FT_Matrix tfmat  = { 0x10000, 0, 0, 0x10000 };
+                
+                if ( flagBold == true )
+                {
+                    tfmat.xx = (FT_Fixed)( tfmat.xx * flagBoldRatio );
+                    tfmat.yx = (FT_Fixed)( tfmat.xy * flagBoldRatio );
+                }
+                
+                if ( flagItalic == true )
+                {
+                    float shear = tan( ( 90.f - 75.f ) / 180.f * FLFT_PI_F );
+                    
+                    tfmat.xy = (FT_Fixed)( shear * 0x10000 );
+                }
+                                
+                FT_Set_Transform( face, &tfmat, &pen );
             }
             
             FT_Error err = FT_Load_Char( face, text[cnt], FT_LOAD_RENDER );
