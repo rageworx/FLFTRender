@@ -19,17 +19,17 @@ using namespace std;
 // Arial Narrow
 //#define FNT_N   "ARIALN.TTF"
 
-void drawLines( Fl_RGB_Image* img, unsigned y )
+void drawLines( Fl_RGB_Image* img, unsigned y, unsigned h )
 {
     fl_imgtk::draw_line( img, 
                          10, y, 1270, y,
-                         0xFF33335F );
+                         0xFF33337F );
     fl_imgtk::draw_line( img,
-                         10, y + 40, 1270, y + 40,
-                         0x33FF335F );
+                         10, y + h, 1270, y + h,
+                         0x33FF337F );
 }
 
-void drawRect( Fl_RGB_Image* img, FLFTRender::Rect * r, unsigned col = 0x3333FF5F)
+void drawRect( Fl_RGB_Image* img, FLFTRender::Rect * r, unsigned col = 0x3333FF7F)
 {
     fl_imgtk::draw_rect( img,
                          r->x, r->y, r->w, r->h,
@@ -93,11 +93,11 @@ int main( int argc, char** argv )
 
                 teststr = "FLFTRender testing :";
                 flftr.FontSize( 75 );
-                flftr.FontColor( 0x3366FF3F );
+                flftr.FontColor( 0x3366FF7F );
                 flftr.MeasureText( teststr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = 10;
-                drawRect( imgGrad, &mrect, 0xFF20407F );
+                drawRect( imgGrad, &mrect, 0xFF0000FF );
                 flftr.RenderText( imgGrad, 10, 10, teststr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 flftr.FontSize( 40 );
@@ -106,42 +106,42 @@ int main( int argc, char** argv )
                 unsigned putY = 100;
                 
                 teststr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&*()_+";
-                drawLines( imgGrad, putY );
+                drawLines( imgGrad, putY, flftr.FontSize() );
                 flftr.MeasureText( teststr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20407F );
+                drawRect( imgGrad, &mrect, 0xFF20403F );
                 flftr.RenderText( imgGrad, 10, putY, teststr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 putY += 50;
 
                 teststr = "abcdefghijklmnopqrstuvwxyz 1234567890-=";
-                drawLines( imgGrad, putY );
+                drawLines( imgGrad, putY, flftr.FontSize() );
                 flftr.MeasureText( teststr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20407F );
+                drawRect( imgGrad, &mrect, 0xFF20403F );
                 flftr.RenderText( imgGrad, 10, putY, teststr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 putY += 50;
 
                 teststr.clear();
                 testwstr = L"가나다라마바사아자차카타파하, 대한민국 한글!";
-                drawLines( imgGrad, putY );
+                drawLines( imgGrad, putY, flftr.FontSize() );
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20407F );
+                drawRect( imgGrad, &mrect, 0xFF20403F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 putY += 50;
 
                 testwstr = L"※☆★○●◎◇◆□■△▲▽▼→←←↑↓↔〓㉠㉡㉢㉣㉤㉥㉦㉧㉨㉩㉪";
-                drawLines( imgGrad, putY );
+                drawLines( imgGrad, putY, flftr.FontSize() );
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20407F );
+                drawRect( imgGrad, &mrect, 0xFF20403F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 putY += 50;
@@ -154,7 +154,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20407F );
+                drawRect( imgGrad, &mrect, 0xFF20403F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 
@@ -167,7 +167,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20407F );
+                drawRect( imgGrad, &mrect, 0xFF20403F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
 
@@ -182,7 +182,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20407F );
+                drawRect( imgGrad, &mrect, 0xFF20403F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
 
@@ -198,7 +198,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20407F );
+                drawRect( imgGrad, &mrect, 0xFF20403F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
 
@@ -213,7 +213,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20407F );
+                drawRect( imgGrad, &mrect, 0xFF20403F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
 
@@ -229,7 +229,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20407F );
+                drawRect( imgGrad, &mrect, 0xFF20403F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
 

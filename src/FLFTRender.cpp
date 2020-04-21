@@ -376,6 +376,23 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
             FT_Set_Transform( face, &tfmat, &pen );
         }        
         
+        // Try to get kerning -
+        if ( fkerning == true )
+        {
+            if ( ( llen > 3 ) && ( cnt > 0 ) && ( cnt + 2 < llen ) )
+            {
+                FT_UInt   idx1 = FT_Get_Char_Index( face, text[ cnt-1 ] );
+                FT_UInt   idx2 = FT_Get_Char_Index( face, text[ cnt+1 ] );
+                FT_Vector kern = {0};
+                
+                if ( FT_Get_Kerning( face, idx1, idx2, FT_KERNING_DEFAULT, &kern ) == 0 )
+                {
+                    s_x += kern.x >> 6;
+                    s_y += kern.y >> 6;
+                }
+            }
+        }
+                
         FT_Error err =  FT_Load_Char( face, text[cnt], FT_LOAD_NO_BITMAP );
         if ( err == 0 )
         {                        
@@ -415,24 +432,7 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
             fflush(stdout);        
 #endif
             return false;
-        }
-        
-        // Try to get kerning -
-        if ( fkerning == true )
-        {
-            if ( ( llen > 3 ) && ( cnt > 0 ) && ( cnt + 2 < llen ) )
-            {
-                FT_UInt   idx1 = FT_Get_Char_Index( face, text[ cnt-1 ] );
-                FT_UInt   idx2 = FT_Get_Char_Index( face, text[ cnt+1 ] );
-                FT_Vector kern = {0};
-                
-                if ( FT_Get_Kerning( face, idx1, idx2, FT_KERNING_DEFAULT, &kern ) == 0 )
-                {
-                    s_x += kern.x >> 6;
-                    s_y += kern.y >> 6;
-                }
-            }
-        }
+        }        
     }
     
 #ifdef DEBUG_TTF_REGION
@@ -554,6 +554,23 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                                 
                 FT_Set_Transform( face, &tfmat, &pen );
             }
+
+            // Try to get kerning -
+            if ( fkerning == true )
+            {
+                if ( ( llen > 3 ) && ( cnt > 0 ) && ( cnt + 2 < llen ) )
+                {
+                    FT_UInt   idx1 = FT_Get_Char_Index( face, text[ cnt-1 ] );
+                    FT_UInt   idx2 = FT_Get_Char_Index( face, text[ cnt+1 ] );
+                    FT_Vector kern = {0};
+                    
+                    if ( FT_Get_Kerning( face, idx1, idx2, FT_KERNING_DEFAULT, &kern ) == 0 )
+                    {
+                        s_x += kern.x >> 6;
+                        s_y += kern.y >> 6;
+                    }
+                }
+            }
             
             FT_Error err = FT_Load_Char( face, text[cnt], FT_LOAD_RENDER );
             if ( err == 0 )
@@ -578,7 +595,6 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                 {
                     for( unsigned col=0; col<t_cols; col++ )
                     {
-                        //if ( ( ( s_x + col ) < b_w ) && ( ( s_y + row ) < b_h ) )
                         if ( ( ( s_x + col ) < b_w ) && ( ( s_y - t_top + row ) < b_h ) )
                         {
                             unsigned pos   = ( ( s_y - t_top )*b_w + s_x + col + row * b_w ) * b_d;
@@ -670,24 +686,7 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
             
                 fflush(stdout);        
 #endif                
-            }
-            
-            // Try to get kerning -
-            if ( fkerning == true )
-            {
-                if ( ( llen > 3 ) && ( cnt > 0 ) && ( cnt + 2 < llen ) )
-                {
-                    FT_UInt   idx1 = FT_Get_Char_Index( face, text[ cnt-1 ] );
-                    FT_UInt   idx2 = FT_Get_Char_Index( face, text[ cnt+1 ] );
-                    FT_Vector kern = {0};
-                    
-                    if ( FT_Get_Kerning( face, idx1, idx2, FT_KERNING_DEFAULT, &kern ) == 0 )
-                    {
-                        s_x += kern.x >> 6;
-                        s_y += kern.y >> 6;
-                    }
-                }
-            }
+            }            
         }
         
 #ifdef DEBUG_TTF_RENDER_REGION
