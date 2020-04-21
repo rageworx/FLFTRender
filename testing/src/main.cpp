@@ -23,13 +23,13 @@ void drawLines( Fl_RGB_Image* img, unsigned y, unsigned h )
 {
     fl_imgtk::draw_line( img, 
                          10, y, 1270, y,
-                         0xFF33337F );
+                         (Fl_Color)0xFF3333F8F );
     fl_imgtk::draw_line( img,
                          10, y + h, 1270, y + h,
-                         0x33FF337F );
+                         (Fl_Color)0x33FF338F );
 }
 
-void drawRect( Fl_RGB_Image* img, FLFTRender::Rect * r, unsigned col = 0x3333FF7F)
+void drawRect( Fl_RGB_Image* img, FLFTRender::Rect * r, unsigned col = 0x5555FFAF)
 {
     fl_imgtk::draw_rect( img,
                          r->x, r->y, r->w, r->h,
@@ -66,11 +66,15 @@ int main( int argc, char** argv )
             unsigned ly = 10;
             unsigned lh = window.h() - 10;
             
+            unsigned colshade = 0xFF000000;
             for( unsigned cnt=lstart; cnt<lend; cnt+=10 )
             {
                 fl_imgtk::draw_smooth_line( imgGrad,
                                             cnt, ly, cnt + slope, lh,
-                                            0xEE88336F );
+                                            (Fl_Color)((colshade&0xFFFFFF00) | 0x3F) );
+                colshade = colshade >> 1;
+                if ( colshade < 0x000000FF )
+                    colshade = 0xFF000000;
             }
 
             // Write something on here.
@@ -97,7 +101,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( teststr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = 10;
-                drawRect( imgGrad, &mrect, 0xFF0000FF );
+                drawRect( imgGrad, &mrect, 0xFF0000AF );
                 flftr.RenderText( imgGrad, 10, 10, teststr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 flftr.FontSize( 40 );
@@ -110,7 +114,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( teststr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20403F );
+                drawRect( imgGrad, &mrect, 0xFF20409F );
                 flftr.RenderText( imgGrad, 10, putY, teststr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 putY += 50;
@@ -120,7 +124,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( teststr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20403F );
+                drawRect( imgGrad, &mrect, 0xFF20409F );
                 flftr.RenderText( imgGrad, 10, putY, teststr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 putY += 50;
@@ -131,7 +135,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20403F );
+                drawRect( imgGrad, &mrect, 0xFF20409F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 putY += 50;
@@ -141,7 +145,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20403F );
+                drawRect( imgGrad, &mrect, 0xFF20409F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 putY += 50;
@@ -154,7 +158,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20403F );
+                drawRect( imgGrad, &mrect, 0xFF20409F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
                 
@@ -167,7 +171,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20403F );
+                drawRect( imgGrad, &mrect, 0xFF20409F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
 
@@ -182,7 +186,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20403F );
+                drawRect( imgGrad, &mrect, 0xFF20409F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
 
@@ -198,7 +202,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20403F );
+                drawRect( imgGrad, &mrect, 0xFF20409F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
 
@@ -213,7 +217,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20403F );
+                drawRect( imgGrad, &mrect, 0xFF20409F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
 
@@ -229,7 +233,7 @@ int main( int argc, char** argv )
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = putY;
-                drawRect( imgGrad, &mrect, 0xFF20403F );
+                drawRect( imgGrad, &mrect, 0xFF80A0AF );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
 
