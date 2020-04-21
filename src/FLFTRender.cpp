@@ -548,13 +548,13 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                                     float gf = (float)( renderbuffer[ pos + 1 ] ) / 255.f;
                                     float bf = (float)( renderbuffer[ pos + 2 ] ) / 255.f;
 
-                                    rf += ( fcolf[0] + fcolf[3] * gdf );
+                                    rf += ( fcolf[0] * fcolf[3] * gdf );
                                     if ( rf > 1.f ) rf = 1.f;
 
-                                    gf += ( fcolf[1] + fcolf[3] * gdf );
+                                    gf += ( fcolf[1] * fcolf[3] * gdf );
                                     if ( gf > 1.f ) gf = 1.f;
 
-                                    bf += ( fcolf[2] + fcolf[3] * gdf );
+                                    bf += ( fcolf[2] * fcolf[3] * gdf );
                                     if ( bf > 1.f ) bf = 1.f;
 
                                     renderbuffer[ pos + 0 ] = (unsigned char)(rf * 255.f);
