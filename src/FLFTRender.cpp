@@ -341,7 +341,8 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
     unsigned    s_x = 0;
     unsigned    s_y = ffsize;
     long        m_h = 0;
-    FT_Vector   pen = {0};
+    long        m_w = 0;
+    unsigned    corr_w2 = 0;
 
     if ( additionalspaceX != 0 )
     {
@@ -357,13 +358,9 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
         
         if ( ( flagItalic == true ) || ( flagBold == true ) )
         {
-            pen.x = s_x;
-            pen.y = s_y;
-            
             if ( flagBold == true )
             {
                 tfmat.xx = (FT_Fixed)( tfmat.xx * flagBoldRatio );
-                tfmat.yx = (FT_Fixed)( tfmat.xy * flagBoldRatio );
             }
             
             if ( flagItalic == true )
@@ -371,10 +368,15 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
                 float shear = tan( ( 90.f - 75.f ) / 180.f * FLFT_PI_F );
                 
                 tfmat.xy = (FT_Fixed)( shear * 0x10000 );
+
+                if ( corr_w2 == 0 )
+                {
+                    corr_w2 = ( 0x10000 - tfmat.xy ) >> 16;
+                }
             }
         }        
                             
-        FT_Set_Transform( face, &tfmat, &pen );
+        FT_Set_Transform( face, &tfmat, NULL );
                         
         FT_Error err =  FT_Load_Char( face, text[cnt], FT_LOAD_NO_BITMAP );
         if ( err == 0 )
@@ -387,6 +389,7 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
             long t_h = t_rows + t_top;
 
             m_h = __MAX( m_h, t_h );
+            m_w = __MAX( m_w, s_x + t_cols );
             
 #ifdef DEBUG_TTF_REGION
             printf( "t_rows = %u, t_cols = %u, t_pitc = %u, t_top = %ld\n",
@@ -441,13 +444,14 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
 
     rect.x = 0;
     rect.y = 0;
-    rect.w = s_x;
+    rect.w = m_w;
     rect.h = m_h - ( ( m_h - s_y ) / 2 );
     
     if ( additionalspaceX != 0 )
     {
         rect.w += abs( additionalspaceX ) * 2;
     }
+
 #ifdef DEBUG_TTF_REGION
     printf( "rect width: %u, height: %u\n", rect.w, rect.h );
     fflush( stdout );
@@ -507,15 +511,8 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     unsigned    b_d = target->d();
     unsigned    s_x = x;
     unsigned    s_y = y + ffsize;
+    long        m_w = 0;
     long        m_h = 0;
-    FT_Vector   pen = {0};
-
-    /* -- issue : some fonts not draws on right position..
-    if ( ( flagItalic == true ) || ( flagBold == true ) )
-    {
-        s_y += ffsize / 2;
-    }
-    */
 
     if ( additionalspaceX != 0 )
     {
@@ -538,14 +535,9 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
             
             if ( ( flagItalic == true ) || ( flagBold == true ) )
             {
-                pen.x = s_x;
-                pen.y = s_y;
-                
-                
                 if ( flagBold == true )
                 {
                     tfmat.xx = (FT_Fixed)( tfmat.xx * flagBoldRatio );
-                    tfmat.yx = (FT_Fixed)( tfmat.xy * flagBoldRatio );
                 }
                 
                 if ( flagItalic == true )
@@ -556,7 +548,7 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                 }
             }
                                 
-            FT_Set_Transform( face, &tfmat, &pen );
+            FT_Set_Transform( face, &tfmat, NULL );
             
             FT_Error err = FT_Load_Char( face, text[cnt], FT_LOAD_RENDER );
             if ( err == 0 )
@@ -575,6 +567,7 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                 long t_h = t_rows + t_top;
 
                 m_h = __MAX( m_h, t_h );
+                m_w = __MAX( m_w, s_x + t_cols );
 
                 #pragma omp parallel for
                 for( unsigned row=0; row<t_rows; row++ )
@@ -700,7 +693,8 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
         {
             rect->x = x;
             rect->y = y;
-            rect->w = s_x - x;
+            //rect->w = s_x - x;
+            rect->w = m_w - x;
             rect->h = m_h - ( ( m_h - ( s_y - y ) ) / 2 );
             
             if ( additionalspaceX != 0 )
