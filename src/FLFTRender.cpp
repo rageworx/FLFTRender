@@ -320,7 +320,13 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
 {
     // check references are existed.
     if ( text == NULL )
+    {
+        rect.x = 0;
+        rect.y = 0;
+        rect.w = 0;
+        rect.h = 0;
         return false;
+    }
 
     // --------------------------------------------------
 
@@ -445,7 +451,16 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
     rect.x = 0;
     rect.y = 0;
     rect.w = m_w;
-    rect.h = m_h - ( ( m_h - s_y ) / 2 );
+    rect.h = m_h;
+
+    if ( (long)m_h > (long)( ( m_h - s_y ) / 2 ) )
+    {
+        rect.h -= ( ( m_h - s_y ) / 2 );
+    }
+    else
+    {
+        rect.h += ( ( s_y - m_h ) / 2 );
+    }
     
     if ( additionalspaceX != 0 )
     {
@@ -693,9 +708,17 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
         {
             rect->x = x;
             rect->y = y;
-            //rect->w = s_x - x;
             rect->w = m_w - x;
-            rect->h = m_h - ( ( m_h - ( s_y - y ) ) / 2 );
+            rect->h = m_h;
+
+            if ( (long)m_h > (long)( ( m_h - s_y ) / 2 ) )
+            {
+                rect->h -= ( ( m_h - s_y ) / 2 );
+            }
+            else
+            {
+                rect->h += ( ( s_y - m_h ) / 2 );
+            }
             
             if ( additionalspaceX != 0 )
             {
