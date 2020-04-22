@@ -14,9 +14,7 @@
 using namespace std;
 
 // D2CodingBold-Ver1.3.2
-//#define FNT_N   "D2CodingBold-Ver1.3.2-20180524.ttf"
-//#define FNT_N   "ParadroidMono-Light.ttf"
-#define FNT_N   "VeraMono.ttf"
+#define FNT_N   "D2CodingBold-Ver1.3.2-20180524.ttf"
 
 // Arial Narrow
 //#define FNT_N   "ARIALN.TTF"
