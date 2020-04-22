@@ -353,12 +353,12 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
 
     for( unsigned cnt=0; cnt<llen; cnt++ )
     {
+        FT_Matrix tfmat  = { 0x10000, 0, 0, 0x10000 };
+        
         if ( ( flagItalic == true ) || ( flagBold == true ) )
         {
             pen.x = s_x;
             pen.y = s_y;
-            
-            FT_Matrix tfmat  = { 0x10000, 0, 0, 0x10000 };
             
             if ( flagBold == true )
             {
@@ -372,27 +372,10 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
                 
                 tfmat.xy = (FT_Fixed)( shear * 0x10000 );
             }
-                            
-            FT_Set_Transform( face, &tfmat, &pen );
         }        
-        
-        // Try to get kerning -
-        if ( fkerning == true )
-        {
-            if ( ( llen > 3 ) && ( cnt > 0 ) && ( cnt + 2 < llen ) )
-            {
-                FT_UInt   idx1 = FT_Get_Char_Index( face, text[ cnt-1 ] );
-                FT_UInt   idx2 = FT_Get_Char_Index( face, text[ cnt+1 ] );
-                FT_Vector kern = {0};
-                
-                if ( FT_Get_Kerning( face, idx1, idx2, FT_KERNING_DEFAULT, &kern ) == 0 )
-                {
-                    s_x += kern.x >> 6;
-                    s_y += kern.y >> 6;
-                }
-            }
-        }
-                
+                            
+        FT_Set_Transform( face, &tfmat, &pen );
+                        
         FT_Error err =  FT_Load_Char( face, text[cnt], FT_LOAD_NO_BITMAP );
         if ( err == 0 )
         {                        
@@ -432,6 +415,23 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
             fflush(stdout);        
 #endif
             return false;
+        }
+        
+        // Try to get kerning -
+        if ( fkerning == true )
+        {
+            if ( ( llen > 3 ) && ( cnt > 0 ) && ( cnt + 2 < llen ) )
+            {
+                FT_UInt   idx1 = FT_Get_Char_Index( face, text[ cnt-1 ] );
+                FT_UInt   idx2 = FT_Get_Char_Index( face, text[ cnt+1 ] );
+                FT_Vector kern = {0};
+                
+                if ( FT_Get_Kerning( face, idx1, idx2, FT_KERNING_DEFAULT, &kern ) == 0 )
+                {
+                    s_x += kern.x >> 6;
+                    s_y += kern.y >> 6;
+                }
+            }
         }        
     }
     
@@ -510,10 +510,12 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     long        m_h = 0;
     FT_Vector   pen = {0};
 
+    /* -- issue : some fonts not draws on right position..
     if ( ( flagItalic == true ) || ( flagBold == true ) )
     {
         s_y += ffsize / 2;
     }
+    */
 
     if ( additionalspaceX != 0 )
     {
@@ -532,12 +534,13 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     {
         for( unsigned cnt=0; cnt<llen; cnt++ )
         {            
+            FT_Matrix tfmat  = { 0x10000, 0, 0, 0x10000 };
+            
             if ( ( flagItalic == true ) || ( flagBold == true ) )
             {
                 pen.x = s_x;
                 pen.y = s_y;
                 
-                FT_Matrix tfmat  = { 0x10000, 0, 0, 0x10000 };
                 
                 if ( flagBold == true )
                 {
@@ -551,30 +554,13 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                     
                     tfmat.xy = (FT_Fixed)( shear * 0x10000 );
                 }
+            }
                                 
-                FT_Set_Transform( face, &tfmat, &pen );
-            }
-
-            // Try to get kerning -
-            if ( fkerning == true )
-            {
-                if ( ( llen > 3 ) && ( cnt > 0 ) && ( cnt + 2 < llen ) )
-                {
-                    FT_UInt   idx1 = FT_Get_Char_Index( face, text[ cnt-1 ] );
-                    FT_UInt   idx2 = FT_Get_Char_Index( face, text[ cnt+1 ] );
-                    FT_Vector kern = {0};
-                    
-                    if ( FT_Get_Kerning( face, idx1, idx2, FT_KERNING_DEFAULT, &kern ) == 0 )
-                    {
-                        s_x += kern.x >> 6;
-                        s_y += kern.y >> 6;
-                    }
-                }
-            }
+            FT_Set_Transform( face, &tfmat, &pen );
             
             FT_Error err = FT_Load_Char( face, text[cnt], FT_LOAD_RENDER );
             if ( err == 0 )
-            {                
+            {           
                 unsigned t_rows = face->glyph->bitmap.rows;
                 unsigned t_cols = face->glyph->bitmap.width;
                 unsigned t_pitc = face->glyph->bitmap.pitch;
@@ -686,6 +672,23 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
             
                 fflush(stdout);        
 #endif                
+            }
+            
+            // Try to get kerning -
+            if ( fkerning == true )
+            {
+                if ( ( llen > 3 ) && ( cnt > 0 ) && ( cnt + 2 < llen ) )
+                {
+                    FT_UInt   idx1 = FT_Get_Char_Index( face, text[ cnt-1 ] );
+                    FT_UInt   idx2 = FT_Get_Char_Index( face, text[ cnt+1 ] );
+                    FT_Vector kern = {0};
+                    
+                    if ( FT_Get_Kerning( face, idx1, idx2, FT_KERNING_DEFAULT, &kern ) == 0 )
+                    {
+                        s_x += kern.x >> 6;
+                        s_y += kern.y >> 6;
+                    }
+                }
             }            
         }
         
