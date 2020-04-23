@@ -397,10 +397,10 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
             m_h = __MAX( m_h, t_h );
             m_w = __MAX( m_w, s_x + t_cols );
             
-#ifdef DEBUG_TTF_REGION
+#ifdef DEBUG_TTF_REGION_CHARS
             printf( "t_rows = %u, t_cols = %u, t_pitc = %u, t_top = %ld\n",
                     t_rows, t_cols, t_pitc, t_top );
-#endif /// of DEBUG_TTF_REGION            
+#endif /// of DEBUG_TTF_REGION
 
             s_x += face->glyph->advance.x >> 6;
             s_y += face->glyph->advance.y >> 6;
@@ -460,6 +460,12 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
     else
     {
         rect.h += ( ( s_y - m_h ) / 2 );
+    }
+    
+    // correct minimal height.
+    if ( rect.h < ffsize )
+    {
+        rect.h = ffsize;
     }
     
     if ( additionalspaceX != 0 )
@@ -711,15 +717,21 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
             rect->w = m_w - x;
             rect->h = m_h;
 
-            if ( (long)m_h > (long)( ( m_h - s_y ) / 2 ) )
+            if ( (long)m_h > (long)( ( m_h - ( s_y - y ) ) / 2 ) )
             {
-                rect->h -= ( ( m_h - s_y ) / 2 );
+                rect->h -= ( ( m_h - ( s_y - y ) ) / 2 );
             }
             else
             {
-                rect->h += ( ( s_y - m_h ) / 2 );
+                rect->h += ( ( ( s_y - y ) - m_h ) / 2 );
             }
             
+            // correct minimal height.
+            if ( rect->h < ffsize )
+            {
+                rect->h = ffsize;
+            }
+                        
             if ( additionalspaceX != 0 )
             {
                 rect->x += additionalspaceX;
