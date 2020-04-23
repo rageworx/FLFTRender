@@ -263,7 +263,7 @@ int main( int argc, char** argv )
                 flftr.AdditionalSpace( 0 );
                 flftr.Bold( true );
                 flftr.Italic( true );
-                flftr.FontSize( 20 );
+                flftr.FontSize( 42 );
                 flftr.FontColor( 0xFFFFFFEF );
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;

@@ -501,6 +501,13 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
         rect.h += ( ( s_y - m_h ) / 2 );
     }
     
+    // emulate bold ratio ( not exaclty matches ! )
+    if ( flagBoldRatio > 1.f )
+    {
+        rect.w = (float)rect.w * ( 1.f + ( flagBoldRatio / 600.f ) );
+        rect.h = (float)rect.h * ( 1.f + ( flagBoldRatio / 100.f ) );
+    }
+    
     // correct minimal height.
     if ( rect.h < ffsize )
     {
