@@ -15,6 +15,8 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_IMAGE_H
+#include FT_OUTLINE_H
 
 #include "FLFTRender.h"
 
@@ -26,9 +28,13 @@
 #define FLFT_DEFAULT_SIZE       12
 #define FLFT_DEFAULT_COLOR      0xFFFFFFFF
 #define FLFT_PI_F               3.1415926535897932384626433f
-#define FLFT_DEFAULT_BOLDR      1.25f
-#define FLFT_MAX_BOLDR          10.0f
-#define FLFT_MIN_BOLDR          0.05f
+#define FLFT_DEFAULT_WIDTHR     1.0f
+#define FLFT_MAX_WIDTHR         10.0f
+#define FLFT_MIN_WIDTHR         0.05f
+#define FLFT_DEFAULT_BOLDR      2.8f
+#define FLFT_MAX_BOLDR          10.f
+#define FLFT_MIN_BOLDR          1.0f
+#define FLFT_BOLD_CALC(_x_)     ( (float)_x_ * flagBoldRatio / 100.f ) * 64.f
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,19 +49,20 @@ FLFTRender::FLFTRender( const char* ttf, long idx )
     ttfbuffer( NULL ),
     ttfbufferlen( 0 ),
     flagBold( false ),
+    flagBoldRatio( FLFT_DEFAULT_BOLDR ),
     flagItalic( false ),
-    flagBoldRatio( FLFT_DEFAULT_BOLDR )
+    flagWidthRatio( FLFT_DEFAULT_WIDTHR )
 {
-    FT_Library libFL = NULL;
-    FT_Face face = NULL;
+    FT_Library libFT = NULL;
+    FT_Face    face = NULL;
 
-    if ( FT_Init_FreeType( &libFL ) == 0 )
+    if ( FT_Init_FreeType( &libFT ) == 0 )
     {
         if ( ttf != NULL )
         {
             if ( access( ttf, 0 ) == 0 )
             {
-                if ( FT_New_Face( libFL, ttf, (FT_Long)idx, &face ) == 0 )
+                if ( FT_New_Face( libFT, ttf, (FT_Long)idx, &face ) == 0 )
                 {
                     loaded = true;
                 }
@@ -63,9 +70,9 @@ FLFTRender::FLFTRender( const char* ttf, long idx )
         }
     }
 
-    if ( libFL != NULL )
+    if ( libFT != NULL )
     {
-        fflib = (void*)libFL;
+        fflib = (void*)libFT;
     }
 
     if ( face != NULL )
@@ -87,13 +94,14 @@ FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz, long i
     ttfbuffer( NULL ),
     ttfbufferlen( 0 ),
     flagBold( false ),
+    flagBoldRatio( FLFT_DEFAULT_BOLDR ),
     flagItalic( false ),
-    flagBoldRatio( FLFT_DEFAULT_BOLDR )
+    flagWidthRatio( FLFT_DEFAULT_WIDTHR )
 {
-    FT_Library libFL = NULL;
-    FT_Face face = NULL;
+    FT_Library libFT = NULL;
+    FT_Face    face = NULL;
 
-    if ( FT_Init_FreeType( &libFL ) == 0 )
+    if ( FT_Init_FreeType( &libFT ) == 0 )
     {
         if ( ( ttfbuff != NULL ) && ( ttfbuffsz > 0 ) )
         {
@@ -104,7 +112,7 @@ FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz, long i
             if ( ttfbuffer != NULL )
             {
                 memcpy( ttfbuffer, ttfbuff, ttfbufferlen );
-                retstate = FT_New_Memory_Face( libFL, ttfbuffer, ttfbufferlen, \
+                retstate = FT_New_Memory_Face( libFT, ttfbuffer, ttfbufferlen, \
                                                (FT_Long)idx, &face );
                 if ( retstate == 0 )
                 {
@@ -115,9 +123,9 @@ FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz, long i
         }
     }
 
-    if ( libFL != NULL )
+    if ( libFT != NULL )
     {
-        fflib = (void*)libFL;
+        fflib = (void*)libFT;
     }
 
     if ( face != NULL )
@@ -130,7 +138,7 @@ FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz, long i
 
 FLFTRender::~FLFTRender()
 {
-    FT_Library libFL = (FT_Library)fflib;
+    FT_Library libFT = (FT_Library)fflib;
     FT_Face face = (FT_Face)fface;
 
     if ( face != NULL )
@@ -139,9 +147,9 @@ FLFTRender::~FLFTRender()
         fface = NULL;
     }
 
-    if ( libFL != NULL )
+    if ( libFT != NULL )
     {
-        FT_Done_FreeType( libFL );
+        FT_Done_FreeType( libFT );
         fflib = NULL;
     }
     
@@ -195,7 +203,7 @@ bool FLFTRender::Bold()
     return flagBold;
 }
 
-void FLFTRender::BoldRatio( float r )
+void  FLFTRender::BoldRatio( float r )
 {
     if ( ( r >= FLFT_MIN_BOLDR ) && ( r <= FLFT_MAX_BOLDR ) )
     {
@@ -211,6 +219,34 @@ float FLFTRender::BoldRatio()
 float FLFTRender::DefaultBoldRatio()
 {
     return FLFT_DEFAULT_BOLDR;
+}
+
+void FLFTRender::ResetBoldRatio()
+{
+    flagBoldRatio = FLFT_DEFAULT_BOLDR;
+}
+
+void FLFTRender::WidthRatio( float r )
+{
+    if ( ( r >= FLFT_MIN_WIDTHR ) && ( r <= FLFT_MAX_WIDTHR ) )
+    {
+        flagWidthRatio = r;
+    }
+}
+
+float FLFTRender::WidthRatio()
+{
+    return flagWidthRatio;
+}
+
+float FLFTRender::DefaultWidthRatio()
+{
+    return FLFT_DEFAULT_WIDTHR;
+}
+
+void FLFTRender::ResetWidthRatio()
+{
+    flagWidthRatio = FLFT_DEFAULT_WIDTHR;
 }
 
 void FLFTRender::Italic( bool onoff )
@@ -331,7 +367,7 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
     // --------------------------------------------------
 
     // Casting ...
-    FT_Library libFL = (FT_Library)fflib;
+    FT_Library libFT = (FT_Library)fflib;
     FT_Face face = (FT_Face)fface;
     
     rect.x = 0;
@@ -362,31 +398,34 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
     {
         FT_Matrix tfmat  = { 0x10000, 0, 0, 0x10000 };
         
-        if ( ( flagItalic == true ) || ( flagBold == true ) )
+        if ( flagItalic == true )
         {
-            if ( flagBold == true )
-            {
-                tfmat.xx = (FT_Fixed)( tfmat.xx * flagBoldRatio );
-            }
+            float shear = tan( ( 90.f - 75.f ) / 180.f * FLFT_PI_F );
             
-            if ( flagItalic == true )
-            {
-                float shear = tan( ( 90.f - 75.f ) / 180.f * FLFT_PI_F );
-                
-                tfmat.xy = (FT_Fixed)( shear * 0x10000 );
+            tfmat.xy = (FT_Fixed)( shear * 0x10000 );
 
-                if ( corr_w2 == 0 )
-                {
-                    corr_w2 = ( 0x10000 - tfmat.xy ) >> 16;
-                }
+            if ( corr_w2 == 0 )
+            {
+                corr_w2 = ( 0x10000 - tfmat.xy ) >> 16;
             }
-        }        
-                            
+        }
+        
+        if ( flagWidthRatio != FLFT_DEFAULT_WIDTHR );
+        {
+            tfmat.xx = (FT_Fixed)( tfmat.xx * flagWidthRatio );
+        }
+                                    
         FT_Set_Transform( face, &tfmat, NULL );
-                        
+                                
         FT_Error err =  FT_Load_Char( face, text[cnt], FT_LOAD_NO_BITMAP );
         if ( err == 0 )
         {                        
+            if ( flagBold == true )
+            {                
+                FT_Outline_Embolden( &face->glyph->outline,
+                                     FLFT_BOLD_CALC(face->size->metrics.x_ppem) );
+            }
+            
             unsigned t_rows = face->glyph->bitmap.rows;
             unsigned t_cols = face->glyph->bitmap.width;
             unsigned t_pitc = face->glyph->bitmap.pitch;
@@ -519,7 +558,7 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     // --------------------------------------------------
 
     // Casting ...
-    FT_Library libFL = (FT_Library)fflib;
+    FT_Library libFT = (FT_Library)fflib;
     FT_Face face = (FT_Face)fface;
 
     if ( ( fflib == NULL ) || ( fface == NULL ) )
@@ -551,29 +590,35 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     if( renderbuffer != NULL )
     {
         for( unsigned cnt=0; cnt<llen; cnt++ )
-        {            
+        {
+            // order : XX, XY, YX, YY
             FT_Matrix tfmat  = { 0x10000, 0, 0, 0x10000 };
-            
-            if ( ( flagItalic == true ) || ( flagBold == true ) )
+                            
+            if ( flagItalic == true )
             {
-                if ( flagBold == true )
-                {
-                    tfmat.xx = (FT_Fixed)( tfmat.xx * flagBoldRatio );
-                }
+                float shear = tan( ( 90.f - 75.f ) / 180.f * FLFT_PI_F );
                 
-                if ( flagItalic == true )
-                {
-                    float shear = tan( ( 90.f - 75.f ) / 180.f * FLFT_PI_F );
-                    
-                    tfmat.xy = (FT_Fixed)( shear * 0x10000 );
-                }
+                tfmat.xy = (FT_Fixed)( shear * 0x10000 );
             }
                                 
+            if ( flagWidthRatio != FLFT_DEFAULT_WIDTHR );
+            {
+                tfmat.xx = (FT_Fixed)( tfmat.xx * flagWidthRatio );
+            }
+
             FT_Set_Transform( face, &tfmat, NULL );
-            
-            FT_Error err = FT_Load_Char( face, text[cnt], FT_LOAD_RENDER );
+                                    
+            FT_Error err = FT_Load_Char( face, text[cnt], FT_LOAD_DEFAULT | FT_LOAD_NO_BITMAP );
             if ( err == 0 )
-            {           
+            {
+                if ( flagBold == true )
+                {                
+                    FT_Outline_Embolden( &face->glyph->outline,
+                                         FLFT_BOLD_CALC(face->size->metrics.x_ppem) );
+                }
+                
+                FT_Render_Glyph( face->glyph, FT_RENDER_MODE_NORMAL );
+
                 unsigned t_rows = face->glyph->bitmap.rows;
                 unsigned t_cols = face->glyph->bitmap.width;
                 unsigned t_pitc = face->glyph->bitmap.pitch;
@@ -761,9 +806,9 @@ void FLFTRender::init()
 {
     if ( ( fflib != NULL ) && ( fface != NULL ) )
     {
-        FT_Library libFL = (FT_Library)fflib;
-        FT_Face face = (FT_Face)fface;
-        
+        FT_Library libFT = (FT_Library)fflib;
+        FT_Face    face = (FT_Face)fface;
+                
         // detect kerning flag existed ?
         fkerning = FT_HAS_KERNING( face );
         

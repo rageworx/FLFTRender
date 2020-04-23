@@ -18,10 +18,10 @@
 #endif /// of _WIN32
 
 // -----------------------------------------------------------------------------
-// Version : 0.1.11.33 [ build, 33 ]
-#define     FLFTRENDER_VERSION_S        "0.1.11.33"
-#define     FLFTRENDER_VERSION          0x00010C21
-#define     FLFTRENDER_VERSION_EX       0x00000021
+// Version : 0.2.0.1 [ build, 36 ]
+#define     FLFTRENDER_VERSION_S        "0.2.0.1"
+#define     FLFTRENDER_VERSION          0x00020001
+#define     FLFTRENDER_VERSION_EX       0x00000024
 
 // -----------------------------------------------------------------------------
 
@@ -53,6 +53,11 @@ class FLFTRender
         void        BoldRatio( float r );
         float       BoldRatio();
         float       DefaultBoldRatio();
+        void        ResetBoldRatio();
+        void        WidthRatio( float r );
+        float       WidthRatio();
+        float       DefaultWidthRatio();
+        void        ResetWidthRatio();
         void        Italic( bool onoff );
         bool        Italic();
         void        AdditionalSpace( long av );
@@ -96,8 +101,9 @@ class FLFTRender
         bool            loaded;
         long            additionalspaceX;
         bool            flagBold;
-        bool            flagItalic;
         float           flagBoldRatio;
+        bool            flagItalic;
+        float           flagWidthRatio;
         
     private:
         unsigned char*  ttfbuffer;

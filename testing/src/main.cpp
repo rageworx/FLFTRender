@@ -46,8 +46,11 @@ int main( int argc, char** argv )
 
     Fl_RGB_Image* imgGrad = NULL;
 
+    char wintitle[80] = {0};
+    snprintf( wintitle, 80, "FLFTRender %s testing window", FLFTRENDER_VERSION_S );
+    
     // Just make an window ..
-    Fl_Window window( 1280, 720, "Testing Window" );
+    Fl_Window window( 1280, 720, wintitle );
     window.begin();
     
         // Create a box for contians testing image.
@@ -176,6 +179,21 @@ int main( int argc, char** argv )
                 drawRect( imgGrad, &rect );
 
                 putY += 30;
+                // Plain text
+                testwstr = L"Plain text : 일반 텍스트";
+                flftr.AdditionalSpace( 0 );
+                flftr.Bold( false );
+                flftr.Italic( false );
+                flftr.FontSize( 20 );
+                flftr.FontColor( 0xFFFFFFEF );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+
+                putY += 30;
                 // Bold
                 testwstr = L"Bold text : 두꺼운 텍스트";
                 flftr.AdditionalSpace( 0 );
@@ -189,13 +207,13 @@ int main( int argc, char** argv )
                 drawRect( imgGrad, &mrect, 0xFF20409F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
-
+                
                 putY += 30;
                 // Bold
-                testwstr = L"Thin text : 얇은 텍스트";
+                testwstr = L"Booooooooold text : 두꺼어어어어어운 텍스트";
                 flftr.AdditionalSpace( 0 );
                 flftr.Bold( true );
-                flftr.BoldRatio( 0.5f );
+                flftr.BoldRatio( 8.f );
                 flftr.Italic( false );
                 flftr.FontSize( 20 );
                 flftr.FontColor( 0xFFFFFFEF );
@@ -205,6 +223,24 @@ int main( int argc, char** argv )
                 drawRect( imgGrad, &mrect, 0xFF20409F );
                 flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
+                flftr.ResetBoldRatio();
+
+                putY += 30;
+                // Thin
+                testwstr = L"Thin text : 얇은 텍스트";
+                flftr.AdditionalSpace( 0 );
+                flftr.WidthRatio( 0.5f );
+                flftr.Bold( false );
+                flftr.Italic( false );
+                flftr.FontSize( 20 );
+                flftr.FontColor( 0xFFFFFFEF );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+                flftr.ResetWidthRatio();
 
                 putY += 30;
                 // Italic
@@ -226,9 +262,8 @@ int main( int argc, char** argv )
                 testwstr = L"Italic bold text : 이탤릭 두꺼운 텍스트";
                 flftr.AdditionalSpace( 0 );
                 flftr.Bold( true );
-                flftr.BoldRatio( 1.4f );
                 flftr.Italic( true );
-                flftr.FontSize( 40 );
+                flftr.FontSize( 20 );
                 flftr.FontColor( 0xFFFFFFEF );
                 flftr.MeasureText( testwstr.c_str(), mrect );
                 mrect.x = 10;
