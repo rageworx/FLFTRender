@@ -69,15 +69,16 @@ int main( int argc, char** argv )
             unsigned ly = 10;
             unsigned lh = window.h() - 10;
             
-            unsigned colshade = 0xFF000000;
+            unsigned colshade = 0xF0000000;
             for( unsigned cnt=lstart; cnt<lend; cnt+=10 )
             {
-                fl_imgtk::draw_smooth_line( imgGrad,
-                                            cnt, ly, cnt + slope, lh,
-                                            (Fl_Color)((colshade&0xFFFFFF00) | 0x3F) );
+                fl_imgtk::draw_smooth_line_ex ( imgGrad,
+                                                cnt, ly, cnt + slope, lh,
+                                                2.3f,
+                                                colshade&0xFFFFFF00|0x29 );
                 colshade = colshade >> 1;
-                if ( colshade < 0x000000FF )
-                    colshade = 0xFF000000;
+                if ( colshade <= 0x00000FFF )
+                    colshade = 0xF0000000;
             }
 
             // Write something on here.
