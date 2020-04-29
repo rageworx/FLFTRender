@@ -60,7 +60,7 @@ int main( int argc, char** argv )
 
         // make a gradation background image and draw text on it.
         imgGrad = fl_imgtk::makegradation_h( window.w(), window.h(),
-                                             0x484848FF, 0xAAAAAA3F, 
+                                             0xAAAAAAFF, 0x9999993F, 
                                              true );
         if ( imgGrad != NULL )
         {
@@ -76,7 +76,7 @@ int main( int argc, char** argv )
                 fl_imgtk::draw_smooth_line_ex ( imgGrad,
                                                 cnt, ly, cnt + slope, lh,
                                                 2.3f,
-                                                colshade&0xFFFFFF00|0x3E );
+                                                colshade&0xFFFFFF00|0x0E );
                 colshade = colshade >> 1;
                 if ( colshade <= 0x00000FFF )
                     colshade = 0xF0000000;
@@ -102,19 +102,19 @@ int main( int argc, char** argv )
 
                 teststr = "FLFTRender testing :";
                 flftr.FontSize( 75 );
-                flftr.FontColor( 0x3366FFFF );
-                flftr.Italic( true );
+                flftr.FontColor( 0x6699FFFF );
+                flftr.Bold( true );
                 flftr.MeasureText( teststr.c_str(), mrect );
                 mrect.x = 10;
                 mrect.y = 10;
                 drawRect( imgGrad, &mrect, 0xFF0000AF );
                 flftr.RenderText( imgGrad, 10, 10, teststr.c_str(), &rect );
                 drawRect( imgGrad, &rect );
-                flftr.FontSize( 40 );
-                flftr.FontColor( 0xFFFFFF7F );
-                flftr.Italic( false );
+                flftr.Bold( false );
 
                 unsigned putY = 100;
+                flftr.FontSize( 40 );
+                flftr.FontColor( 0xFFFFFF8F );
                 
                 teststr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&*()_+";
                 drawLines( imgGrad, putY, flftr.FontSize() );
