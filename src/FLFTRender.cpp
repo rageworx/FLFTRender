@@ -656,6 +656,7 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                             switch( b_d )
                             {
                                 case 1: /// gray-scaled.
+                                if ( gdf > 0.f )
                                 {
                                     float dp = (float)renderbuffer[ pos ] / 255.f;
 
@@ -667,20 +668,21 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                                 break;
 
                                 case 3: /// RGB.
+                                if ( gdf > 0.f )
                                 {
                                     float rf = (float)( renderbuffer[ pos + 0 ] ) / 255.f;
                                     float gf = (float)( renderbuffer[ pos + 1 ] ) / 255.f;
                                     float bf = (float)( renderbuffer[ pos + 2 ] ) / 255.f;
 
-                                    rf *= ( 1.f - gdf );
+                                    rf *= ( 1.f - ( fcolf[3] * gdf ) );
                                     rf += ( fcolf[0] * fcolf[3] * gdf );
                                     if ( rf > 1.f ) rf = 1.f;
 
-                                    gf *= ( 1.f - gdf );
+                                    gf *= ( 1.f - ( fcolf[3] * gdf ) );
                                     gf += ( fcolf[1] * fcolf[3] * gdf );
                                     if ( gf > 1.f ) gf = 1.f;
 
-                                    bf *= ( 1.f - gdf );
+                                    bf *= ( 1.f - ( fcolf[3] * gdf ) );
                                     bf += ( fcolf[2] * fcolf[3] * gdf );
                                     if ( bf > 1.f ) bf = 1.f;
 
@@ -691,26 +693,27 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                                 break;
 
                                 case 4: /// RGBA
+                                if ( gdf > 0.f )
                                 {
                                     float rf = (float)( renderbuffer[ pos + 0 ] ) / 255.f;
                                     float gf = (float)( renderbuffer[ pos + 1 ] ) / 255.f;
                                     float bf = (float)( renderbuffer[ pos + 2 ] ) / 255.f;
                                     float af = (float)( renderbuffer[ pos + 3 ] ) / 255.f;
 
-                                    rf *= ( 1.f - af );
+                                    rf *= ( 1.f - ( af * fcolf[3] * gdf ) );
                                     rf += ( fcolf[0] * fcolf[3] * gdf );
                                     if ( rf > 1.f ) rf = 1.f;
 
-                                    gf *= ( 1.f - af );
+                                    gf *= ( 1.f - ( af * fcolf[3] * gdf ) );
                                     gf += ( fcolf[1] * fcolf[3] * gdf );
                                     if ( gf > 1.f ) gf = 1.f;
 
-                                    bf *= ( 1.f - af );
+                                    bf *= ( 1.f - ( af * fcolf[3] * gdf ) );
                                     bf += ( fcolf[2] * fcolf[3] * gdf );
                                     if ( bf > 1.f ) bf = 1.f;
-
-                                    bf *= ( 1.f - af );
-                                    af += ( fcolf[3] * fcolf[3] * gdf );
+                                    
+                                    af *= ( 1.f - ( af * fcolf[3] * gdf ) );
+                                    af += ( fcolf[3] * gdf );
                                     if ( af > 1.f ) af = 1.f;
 
                                     renderbuffer[ pos + 0 ] = (unsigned char)(rf * 255.f);
