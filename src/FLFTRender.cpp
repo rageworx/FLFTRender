@@ -7,7 +7,7 @@
 
 #if !defined(_WIN32)
 #include <wchar.h>
-#endif 
+#endif
 
 #if defined(_WIN32) || defined(__linux__)
 #include <omp.h>
@@ -79,7 +79,7 @@ FLFTRender::FLFTRender( const char* ttf, long idx )
     {
         fface = (void*)face;
     }
-    
+
     init();
 }
 
@@ -108,7 +108,7 @@ FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz, long i
             int retstate = -1;
             ttfbufferlen = ttfbuffsz;
             ttfbuffer = new unsigned char[ ttfbufferlen ];
-            
+
             if ( ttfbuffer != NULL )
             {
                 memcpy( ttfbuffer, ttfbuff, ttfbufferlen );
@@ -132,7 +132,7 @@ FLFTRender::FLFTRender( const unsigned char* ttfbuff, unsigned ttfbuffsz, long i
     {
         fface = (void*)face;
     }
-    
+
     init();
 }
 
@@ -152,7 +152,7 @@ FLFTRender::~FLFTRender()
         FT_Done_FreeType( libFT );
         fflib = NULL;
     }
-    
+
     if ( ttfbuffer != NULL )
     {
         delete[] ttfbuffer;
@@ -279,7 +279,7 @@ unsigned FLFTRender::Faces()
         if ( face->num_faces > 0 )
             return face->num_faces;
     }
-    
+
     return 0;
 }
 
@@ -288,11 +288,11 @@ unsigned FLFTRender::Glyphs()
     if ( fface != NULL )
     {
         FT_Face face = (FT_Face)fface;
-        
+
         if ( face->num_glyphs > 0 )
             return face->num_glyphs;
     }
-    
+
     return 0;
 }
 
@@ -301,12 +301,12 @@ unsigned FLFTRender::Charmaps()
     if ( fface != NULL )
     {
         FT_Face face = (FT_Face)fface;
-        
+
         if ( face->num_charmaps > 0 )
             return face->num_charmaps;
     }
-    
-    return 0;    
+
+    return 0;
 }
 
 const char* FLFTRender::FamilyName()
@@ -314,10 +314,10 @@ const char* FLFTRender::FamilyName()
     if ( fface != NULL )
     {
         FT_Face face = (FT_Face)fface;
-        
+
         return face->family_name;
     }
-    
+
     return NULL;
 }
 
@@ -326,10 +326,10 @@ const char* FLFTRender::StyleName()
     if ( fface != NULL )
     {
         FT_Face face = (FT_Face)fface;
-        
+
         return face->style_name;
     }
-    
+
     return NULL;
 }
 
@@ -349,7 +349,7 @@ bool FLFTRender::MeasureText( const char* text, Rect &rect )
         delete[] wcsbuff;
     }
 
-    return retb;    
+    return retb;
 }
 
 bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
@@ -369,7 +369,7 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
     // Casting ...
     FT_Library libFT = (FT_Library)fflib;
     FT_Face face = (FT_Face)fface;
-    
+
     rect.x = 0;
     rect.y = 0;
     rect.w = 0;
@@ -377,7 +377,7 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
 
     if ( ( fflib == NULL ) || ( fface == NULL ) )
         return false;
-    
+
     // make buffer enough.
     unsigned    llen = wcslen( text );
     unsigned    s_x = 0;
@@ -397,11 +397,11 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
     for( unsigned cnt=0; cnt<llen; cnt++ )
     {
         FT_Matrix tfmat  = { 0x10000, 0, 0, 0x10000 };
-        
+
         if ( flagItalic == true )
         {
             float shear = tan( ( 90.f - 75.f ) / 180.f * FLFT_PI_F );
-            
+
             tfmat.xy = (FT_Fixed)( shear * 0x10000 );
 
             if ( corr_w2 == 0 )
@@ -409,33 +409,33 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
                 corr_w2 = ( 0x10000 - tfmat.xy ) >> 16;
             }
         }
-        
+
         if ( flagWidthRatio != FLFT_DEFAULT_WIDTHR );
         {
             tfmat.xx = (FT_Fixed)( tfmat.xx * flagWidthRatio );
         }
-                                    
+
         FT_Set_Transform( face, &tfmat, NULL );
-                                
+
         FT_Error err =  FT_Load_Char( face, text[cnt], FT_LOAD_NO_BITMAP );
         if ( err == 0 )
-        {                        
+        {
             if ( flagBold == true )
-            {                
+            {
                 FT_Outline_Embolden( &face->glyph->outline,
                                      FLFT_BOLD_CALC(face->size->metrics.x_ppem) );
             }
-            
+
             unsigned t_rows = face->glyph->bitmap.rows;
             unsigned t_cols = face->glyph->bitmap.width;
             unsigned t_pitc = face->glyph->bitmap.pitch;
             long     t_top  = face->glyph->bitmap_top;
-            
+
             long t_h = t_rows + t_top;
 
             m_h = __MAX( m_h, t_h );
             m_w = __MAX( m_w, s_x + t_cols );
-            
+
 #ifdef DEBUG_TTF_REGION_CHARS
             printf( "t_rows = %u, t_cols = %u, t_pitc = %u, t_top = %ld\n",
                     t_rows, t_cols, t_pitc, t_top );
@@ -443,7 +443,7 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
 
             s_x += face->glyph->advance.x >> 6;
             s_y += face->glyph->advance.y >> 6;
-            
+
             if ( additionalspaceX != 0 )
             {
                 if ( (long)s_x + additionalspaceX > 0 )
@@ -459,12 +459,12 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
             printf( "failed to FL_Load_Char(), text = %C ( %u ), return error = %d\n",
                     text[cnt], (unsigned)text[cnt], err );
             printf( "Error : %s\n", FT_Error_String( err ) );
-        
-            fflush(stdout);        
+
+            fflush(stdout);
 #endif
             return false;
         }
-        
+
         // Try to get kerning -
         if ( fkerning == true )
         {
@@ -473,16 +473,16 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
                 FT_UInt   idx1 = FT_Get_Char_Index( face, text[ cnt-1 ] );
                 FT_UInt   idx2 = FT_Get_Char_Index( face, text[ cnt+1 ] );
                 FT_Vector kern = {0};
-                
+
                 if ( FT_Get_Kerning( face, idx1, idx2, FT_KERNING_DEFAULT, &kern ) == 0 )
                 {
                     s_x += kern.x >> 6;
                     s_y += kern.y >> 6;
                 }
             }
-        }        
+        }
     }
-    
+
 #ifdef DEBUG_TTF_REGION
     printf( "s_y = %u, m_h = %u\n", s_y, m_h );
 #endif /// of DEBUG_TTF_REGION
@@ -500,20 +500,20 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
     {
         rect.h += ( ( s_y - m_h ) / 2 );
     }
-    
+
     // emulate bold ratio ( not exaclty matches ! )
     if ( flagBoldRatio > 1.f )
     {
         rect.w = (float)rect.w * ( 1.f + ( flagBoldRatio / 600.f ) );
         rect.h = (float)rect.h * ( 1.f + ( flagBoldRatio / 100.f ) );
     }
-    
+
     // correct minimal height.
     if ( rect.h < ffsize )
     {
         rect.h = ffsize;
     }
-    
+
     if ( additionalspaceX != 0 )
     {
         rect.w += abs( additionalspaceX ) * 2;
@@ -523,7 +523,7 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
     printf( "rect width: %u, height: %u\n", rect.w, rect.h );
     fflush( stdout );
 #endif /// of DEBUG_TTF_REGION
-    
+
     return true;
 }
 
@@ -600,30 +600,30 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
         {
             // order : XX, XY, YX, YY
             FT_Matrix tfmat  = { 0x10000, 0, 0, 0x10000 };
-                            
+
             if ( flagItalic == true )
             {
                 float shear = tan( ( 90.f - 75.f ) / 180.f * FLFT_PI_F );
-                
+
                 tfmat.xy = (FT_Fixed)( shear * 0x10000 );
             }
-                                
+
             if ( flagWidthRatio != FLFT_DEFAULT_WIDTHR );
             {
                 tfmat.xx = (FT_Fixed)( tfmat.xx * flagWidthRatio );
             }
 
             FT_Set_Transform( face, &tfmat, NULL );
-                                    
+
             FT_Error err = FT_Load_Char( face, text[cnt], FT_LOAD_DEFAULT | FT_LOAD_NO_BITMAP );
             if ( err == 0 )
             {
                 if ( flagBold == true )
-                {                
+                {
                     FT_Outline_Embolden( &face->glyph->outline,
                                          FLFT_BOLD_CALC(face->size->metrics.x_ppem) );
                 }
-                
+
                 FT_Render_Glyph( face->glyph, FT_RENDER_MODE_NORMAL );
 
                 unsigned t_rows = face->glyph->bitmap.rows;
@@ -636,7 +636,7 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                         t_rows, t_cols, t_pitc, t_top );
                 fflush(stdout);
 #endif /// of DEBUG_TTF_RENDER_REGION
-                
+
                 long t_h = t_rows + t_top;
 
                 m_h = __MAX( m_h, t_h );
@@ -672,12 +672,15 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                                     float gf = (float)( renderbuffer[ pos + 1 ] ) / 255.f;
                                     float bf = (float)( renderbuffer[ pos + 2 ] ) / 255.f;
 
+                                    rf *= ( 1.f - gdf );
                                     rf += ( fcolf[0] * fcolf[3] * gdf );
                                     if ( rf > 1.f ) rf = 1.f;
 
+                                    gf *= ( 1.f - gdf );
                                     gf += ( fcolf[1] * fcolf[3] * gdf );
                                     if ( gf > 1.f ) gf = 1.f;
 
+                                    bf *= ( 1.f - gdf );
                                     bf += ( fcolf[2] * fcolf[3] * gdf );
                                     if ( bf > 1.f ) bf = 1.f;
 
@@ -694,16 +697,20 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                                     float bf = (float)( renderbuffer[ pos + 2 ] ) / 255.f;
                                     float af = (float)( renderbuffer[ pos + 3 ] ) / 255.f;
 
+                                    rf *= ( 1.f - af );
                                     rf += ( fcolf[0] * fcolf[3] * gdf );
                                     if ( rf > 1.f ) rf = 1.f;
 
+                                    gf *= ( 1.f - af );
                                     gf += ( fcolf[1] * fcolf[3] * gdf );
                                     if ( gf > 1.f ) gf = 1.f;
 
+                                    bf *= ( 1.f - af );
                                     bf += ( fcolf[2] * fcolf[3] * gdf );
                                     if ( bf > 1.f ) bf = 1.f;
-                                    
-                                    af += ( fcolf[3] * gdf );
+
+                                    bf *= ( 1.f - af );
+                                    af += ( fcolf[3] * fcolf[3] * gdf );
                                     if ( af > 1.f ) af = 1.f;
 
                                     renderbuffer[ pos + 0 ] = (unsigned char)(rf * 255.f);
@@ -719,7 +726,7 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
 
                 s_x += face->glyph->advance.x >> 6;
                 s_y += face->glyph->advance.y >> 6;
-                
+
                 if ( additionalspaceX != 0 )
                 {
                     if ( (long)s_x + additionalspaceX > 0 )
@@ -735,11 +742,11 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                 printf( "failed to FL_Load_Char(), text = %C ( %u ), return error = %d\n",
                         text[cnt], (unsigned)text[cnt], err );
                 printf( "Error : %s\n", FT_Error_String( err ) );
-            
-                fflush(stdout);        
-#endif                
+
+                fflush(stdout);
+#endif
             }
-            
+
             // Try to get kerning -
             if ( fkerning == true )
             {
@@ -748,16 +755,16 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                     FT_UInt   idx1 = FT_Get_Char_Index( face, text[ cnt-1 ] );
                     FT_UInt   idx2 = FT_Get_Char_Index( face, text[ cnt+1 ] );
                     FT_Vector kern = {0};
-                    
+
                     if ( FT_Get_Kerning( face, idx1, idx2, FT_KERNING_DEFAULT, &kern ) == 0 )
                     {
                         s_x += kern.x >> 6;
                         s_y += kern.y >> 6;
                     }
                 }
-            }            
+            }
         }
-        
+
 #ifdef DEBUG_TTF_RENDER_REGION
         printf( "y = %u, s_y = %u, m_h = %u\n", y, s_y - y, m_h );
 #endif /// of DEBUG_TTF_RENDER_REGION
@@ -777,13 +784,13 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
             {
                 rect->h += ( ( ( s_y - y ) - m_h ) / 2 );
             }
-            
+
             // correct minimal height.
             if ( rect->h < ffsize )
             {
                 rect->h = ffsize;
             }
-                        
+
             if ( additionalspaceX != 0 )
             {
                 rect->x += additionalspaceX;
@@ -815,10 +822,10 @@ void FLFTRender::init()
     {
         FT_Library libFT = (FT_Library)fflib;
         FT_Face    face = (FT_Face)fface;
-                
+
         // detect kerning flag existed ?
         fkerning = FT_HAS_KERNING( face );
-        
+
         // bug_fix: set default font size
         FT_Set_Pixel_Sizes( face, 0, ffsize );
     }
@@ -833,11 +840,11 @@ bool FLFTRender::Loader( const wchar_t* ttfpath, long idx, FLFTRender* &flftr )
         if ( fp != NULL )
         {
             bool retb = false;
-            
+
             fseek( fp, 0L, SEEK_END );
             unsigned fsz = ftell( fp );
             rewind( fp );
-            
+
             if ( fsz > 0 )
             {
                 unsigned char* buff = new unsigned char[fsz];
@@ -856,10 +863,10 @@ bool FLFTRender::Loader( const wchar_t* ttfpath, long idx, FLFTRender* &flftr )
             }
 
             fclose( fp );
-            
+
             return retb;
         }
     }
-    
+
     return false;
 }

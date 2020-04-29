@@ -18,10 +18,10 @@
 #endif /// of _WIN32
 
 // -----------------------------------------------------------------------------
-// Version : 0.2.0.1 [ build, 36 ]
-#define     FLFTRENDER_VERSION_S        "0.2.0.1"
-#define     FLFTRENDER_VERSION          0x00020001
-#define     FLFTRENDER_VERSION_EX       0x00000024
+// Version : 0.2.1.2 [ build, 37 ]
+#define     FLFTRENDER_VERSION_S        "0.2.1.2"
+#define     FLFTRENDER_VERSION          0x00020102
+#define     FLFTRENDER_VERSION_EX       0x00000025
 
 // -----------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ class FLFTRender
             unsigned w;
             unsigned h;
         }Rect;
-        
+
     public:
         FLFTRender( const char* ttf = NULL, long idx = 0 );
         FLFTRender( const unsigned char* ttfbuff = NULL, \
@@ -62,7 +62,7 @@ class FLFTRender
         bool        Italic();
         void        AdditionalSpace( long av );
         long        AdditionalSpace();
-        
+
     public:
         unsigned    Faces();
         unsigned    Glyphs();
@@ -87,7 +87,7 @@ class FLFTRender
         */
         static bool Loader( const wchar_t* ttfpath, long idx, \
                             FLFTRender* &flftr );
-                                        
+
     protected:
         void        col2rgbaf( float &r, float &g, float &b, float &a );
         void        init();
@@ -104,7 +104,7 @@ class FLFTRender
         float           flagBoldRatio;
         bool            flagItalic;
         float           flagWidthRatio;
-        
+
     private:
         unsigned char*  ttfbuffer;
         unsigned        ttfbufferlen;
