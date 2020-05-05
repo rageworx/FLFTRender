@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
-
+#include <wchar.h>
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Box.H>

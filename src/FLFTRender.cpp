@@ -837,9 +837,29 @@ void FLFTRender::init()
 // A static function for Load TTF from filesystem (Windows)
 bool FLFTRender::Loader( const wchar_t* ttfpath, long idx, FLFTRender* &flftr )
 {
+#ifndef _WIN32
+    char* convfpath = NULL;
+    unsigned convlen = wcslen( ttfpath );
+    
+    if ( convlen == 0 )
+        return false;
+
+    convlen *= 2;
+    convfpath = new char[ convlen ];
+
+    if ( convfpath == NULL )
+        return false;
+
+    fl_utf8fromwc( convfpath, convlen, ttfpath, wcslen( ttfpath ) );
+
+    if ( access( convfpath, 0 ) == 0 )
+    {
+        FILE* fp = fopen( convfpath, "rb" );
+#else
     if ( _waccess( ttfpath, 0 ) == 0 )
     {
         FILE* fp = _wfopen( ttfpath, L"rb" );
+#endif /// of _WIN32
         if ( fp != NULL )
         {
             bool retb = false;
@@ -867,9 +887,16 @@ bool FLFTRender::Loader( const wchar_t* ttfpath, long idx, FLFTRender* &flftr )
 
             fclose( fp );
 
+#ifndef _WIN32
+            delete[] convfpath;
+#endif
             return retb;
         }
     }
+
+#ifndef _WIN32
+    delete[] convfpath;
+#endif
 
     return false;
 }
