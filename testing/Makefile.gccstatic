@@ -65,7 +65,7 @@ clean:
 $(OBJST): $(TARGET_OBJ)/%.o: $(SRC_PATH)/%.cpp
 	@$(CXX) $(CFLAGS) -c $< -o $@
 
-$(OBJSF): $(TARGET_OBJ)%.o: ../src/%.cpp
+$(OBJSF): $(TARGET_OBJ)/%.o: ../src/%.cpp
 	@$(CXX) $(CFLAGS) -c $< -o $@
 
 $(TARGET_DIR)/$(TARGET_PKG): $(OBJST) $(OBJSF)
