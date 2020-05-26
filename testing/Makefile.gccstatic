@@ -20,7 +20,7 @@ FLTK_CFG_I = $(shell ${FLTK_CFG} --cxxflags)
 FLTK_CFG_L = $(shell ${FLTK_CFG} --ldflags)
 
 # DEFINITIONS
-DEFS +=
+DEFS += -DDEBUG_TTF_REGION -DDEBUG_TTF_RENDER_REGION
 
 # Compiler optiops 
 COPTS = -O2 -s -fopenmp

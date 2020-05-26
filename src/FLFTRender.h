@@ -5,7 +5,7 @@
 *
 *  libfreetype2 toolkit for FLTK RGB inmage
 *  ========================================
-*  (C)2020, Raphael Kim
+*  (C)Copyrighted 2020, Raphael Kim
 *  [ source at ] https://github.com/rageworx/FLFTRender
 *
 *******************************************************************************/
@@ -13,11 +13,15 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Image.H>
 #include <FL/Fl_RGB_Image.H>
+#ifndef _WIN32
+#include <wchar.h>
+#endif /// of _WIN32
 
 // -----------------------------------------------------------------------------
-// Version : 0.1.5.12 [0]
-#define     FLFTRENDER_VERSION          0x0001050C
-#define     FLFTRENDER_VERSION_EX       0x00000000
+// Version : 0.2.1.2 [ build, 37 ]
+#define     FLFTRENDER_VERSION_S        "0.2.1.2"
+#define     FLFTRENDER_VERSION          0x00020102
+#define     FLFTRENDER_VERSION_EX       0x00000025
 
 // -----------------------------------------------------------------------------
 
@@ -31,7 +35,7 @@ class FLFTRender
             unsigned w;
             unsigned h;
         }Rect;
-        
+
     public:
         FLFTRender( const char* ttf = NULL, long idx = 0 );
         FLFTRender( const unsigned char* ttfbuff = NULL, \
@@ -44,10 +48,31 @@ class FLFTRender
         unsigned    FontSize();
         void        FontColor( unsigned rgba );
         unsigned    FontColor();
+        void        Bold( bool onoff );
+        bool        Bold();
+        void        BoldRatio( float r );
+        float       BoldRatio();
+        float       DefaultBoldRatio();
+        void        ResetBoldRatio();
+        void        WidthRatio( float r );
+        float       WidthRatio();
+        float       DefaultWidthRatio();
+        void        ResetWidthRatio();
+        void        Italic( bool onoff );
+        bool        Italic();
         void        AdditionalSpace( long av );
         long        AdditionalSpace();
 
     public:
+        unsigned    Faces();
+        unsigned    Glyphs();
+        unsigned    Charmaps();
+        const char* FamilyName();
+        const char* StyleName();
+
+    public:
+        bool        MeasureText( const char* text, Rect &rect );
+        bool        MeasureText( const wchar_t* text, Rect &rect );
         bool        RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, \
                                 const char* text, \
                                 Rect* rect = NULL );
@@ -55,7 +80,6 @@ class FLFTRender
                                 const wchar_t* text, \
                                 Rect* rect = NULL );
 
-#ifdef _WIN32
     public:
         /*
         ** A sataic function to load TTF font from Windows base file systems,
@@ -63,8 +87,7 @@ class FLFTRender
         */
         static bool Loader( const wchar_t* ttfpath, long idx, \
                             FLFTRender* &flftr );
-#endif /// of _wIN32
-                                        
+
     protected:
         void        col2rgbaf( float &r, float &g, float &b, float &a );
         void        init();
@@ -77,7 +100,11 @@ class FLFTRender
         bool            fkerning;
         bool            loaded;
         long            additionalspaceX;
-        
+        bool            flagBold;
+        float           flagBoldRatio;
+        bool            flagItalic;
+        float           flagWidthRatio;
+
     private:
         unsigned char*  ttfbuffer;
         unsigned        ttfbufferlen;

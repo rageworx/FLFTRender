@@ -2,7 +2,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
+#include <string>
+#include <wchar.h>
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
 #include <FL/Fl_Box.H>
@@ -18,21 +19,21 @@ using namespace std;
 // Arial Narrow
 //#define FNT_N   "ARIALN.TTF"
 
-void drawLines( Fl_RGB_Image* img, unsigned y )
+void drawLines( Fl_RGB_Image* img, unsigned y, unsigned h )
 {
     fl_imgtk::draw_line( img, 
                          10, y, 1270, y,
-                         0xFF3333AF );
+                         (Fl_Color)0xFF3333F8F );
     fl_imgtk::draw_line( img,
-                         10, y + 40, 1270, y + 40,
-                         0x33FF33AF );
+                         10, y + h, 1270, y + h,
+                         (Fl_Color)0x33FF338F );
 }
 
-void drawRect( Fl_RGB_Image* img, FLFTRender::Rect * r )
+void drawRect( Fl_RGB_Image* img, FLFTRender::Rect * r, unsigned col = 0x5555FFAF)
 {
     fl_imgtk::draw_rect( img,
                          r->x, r->y, r->w, r->h,
-                         0x3333FF5F );
+                         col );
 }
 
 int main( int argc, char** argv )
@@ -43,10 +44,14 @@ int main( int argc, char** argv )
         return 0;
     }
 
-    Fl_RGB_Image* imgGradation = NULL;
+    Fl_RGB_Image* imgGrad = NULL;
 
+    char wintitle[80] = {0};
+    snprintf( wintitle, 80, "FLFTRender %s testing window", FLFTRENDER_VERSION_S );
+    
     // Just make an window ..
-    Fl_Window window( 1280, 720, "Testing Window" );
+    Fl_Window window( 1280, 720, wintitle );
+    window.color( 0x00000000 );
     window.begin();
     
         // Create a box for contians testing image.
@@ -54,91 +59,239 @@ int main( int argc, char** argv )
         boxImage.box( FL_NO_BOX );
 
         // make a gradation background image and draw text on it.
-        imgGradation = fl_imgtk::makegradation_h( 1280, 720, 
-                                                  0xAAAAAAFF, 0x333333FF, 
-                                                  true );
-        if ( imgGradation != NULL )
+        imgGrad = fl_imgtk::makegradation_h( window.w(), window.h(),
+                                             0xAAAAAAFF, 0x9999993F, 
+                                             true );
+        if ( imgGrad != NULL )
         {
-            for( unsigned cnt=10; cnt<1200; cnt+=10 )
+            unsigned slope = 60;
+            unsigned lstart = 10;
+            unsigned lend = window.w() - slope - 10;
+            unsigned ly = 10;
+            unsigned lh = window.h() - 10;
+            
+            unsigned colshade = 0xF0000000;
+            for( unsigned cnt=lstart; cnt<lend; cnt+=10 )
             {
-                fl_imgtk::draw_smooth_line( imgGradation,
-                                            cnt, 10, cnt + 60, 710,
-                                            0xEE88336F );
+                fl_imgtk::draw_smooth_line_ex ( imgGrad,
+                                                cnt, ly, cnt + slope, lh,
+                                                2.3f,
+                                                colshade&0xFFFFFF00|0x0E );
+                colshade = colshade >> 1;
+                if ( colshade <= 0x00000FFF )
+                    colshade = 0xF0000000;
             }
-
 
             // Write something on here.
             FLFTRender flftr( FNT_N );
             if ( flftr.FontLoaded() == true )
             {
-                flftr.AdditionalSpace( -3 );
+                printf( "Font Info : \n" );
+                printf( " - [%s %s] has %u face(s), %u glyphs and %u charmaps.\n", 
+                        flftr.FamilyName(), flftr.StyleName(),
+                        flftr.Faces(), flftr.Glyphs(), flftr.Charmaps() );
+                fflush( stdout );
                 
+                string teststr;
+                wstring testwstr;
+                
+                flftr.AdditionalSpace( 4 );
+                
+                FLFTRender::Rect mrect = {0};
                 FLFTRender::Rect rect = {0};
 
+                teststr = "FLFTRender testing :";
                 flftr.FontSize( 75 );
-                flftr.FontColor( 0x3366FF3F );
-                flftr.RenderText( imgGradation, 10, 10,
-                                  "FLFTRender testing :",
-                                  &rect );
-                drawRect( imgGradation, &rect );
-                flftr.FontSize( 40 );
-                flftr.FontColor( 0xFFFFFF7F );
-
+                flftr.FontColor( 0x6699FFFF );
+                flftr.Bold( true );
+                flftr.MeasureText( teststr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = 10;
+                drawRect( imgGrad, &mrect, 0xFF0000AF );
+                flftr.RenderText( imgGrad, 10, 10, teststr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+                flftr.Bold( false );
 
                 unsigned putY = 100;
-                drawLines( imgGradation, putY );
-                flftr.RenderText( imgGradation, 10, putY,
-                                  "ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&*()_+",
-                                  &rect );
-                drawRect( imgGradation, &rect );
-                putY += 50;
-
-                drawLines( imgGradation, putY );
-                flftr.RenderText( imgGradation, 10, putY,
-                                  "abcdefghijklmnopqrstuvwxyz 1234567890-=",
-                                  &rect );
-                drawRect( imgGradation, &rect );
-                putY += 50;
-
-                drawLines( imgGradation, putY );
-                flftr.RenderText( imgGradation, 10, putY,
-                                  L"가나다라마바사아자차카타파하, 대한민국 한글!",
-                                  &rect );
-                drawRect( imgGradation, &rect );
-                putY += 50;
-
-                drawLines( imgGradation, putY );
-                flftr.RenderText( imgGradation, 10, putY,
-                                  L"※☆★○●◎◇◆□■△▲▽▼→←←↑↓↔〓㉠㉡㉢㉣㉤㉥㉦㉧㉨㉩㉪",
-                                  &rect );
-                drawRect( imgGradation, &rect );
-                putY += 50;
-
-                drawLines( imgGradation, putY );
-
-                putY += 100;
-                // alpha depth test ...
+                flftr.FontSize( 40 );
+                flftr.FontColor( 0xFFFFFF8F );
                 
+                teststr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ !@#$%^&*()_+";
+                drawLines( imgGrad, putY, flftr.FontSize() );
+                flftr.MeasureText( teststr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, teststr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+                putY += 50;
+
+                teststr = "abcdefghijklmnopqrstuvwxyz 1234567890-=";
+                drawLines( imgGrad, putY, flftr.FontSize() );
+                flftr.MeasureText( teststr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, teststr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+                putY += 50;
+
+                teststr.clear();
+                testwstr = L"가나다라마바사아자차카타파하, 대한민국 한글!";
+                drawLines( imgGrad, putY, flftr.FontSize() );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+                putY += 50;
+
+                testwstr = L"※☆★○●◎◇◆□■△▲▽▼→←←↑↓↔〓㉠㉡㉢㉣㉤㉥㉦㉧㉨㉩㉪";
+                drawLines( imgGrad, putY, flftr.FontSize() );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+                putY += 50;
+
+                // alpha depth test ...
+                testwstr = L"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψω";
+                flftr.AdditionalSpace( 0 );
                 flftr.FontSize( 50 );
                 flftr.FontColor( 0x3366995F );
-                flftr.RenderText( imgGradation, 10, putY,
-                                  L"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψω",
-                                  &rect );
-                drawRect( imgGradation, &rect );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+                
+                putY += 70;
+                // alpha depth over-width test ...
+                testwstr = L"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψω";
+                flftr.AdditionalSpace( 8 );                
+                flftr.FontSize( 20 );
+                flftr.FontColor( 0x6633995F );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+
+                putY += 30;
+                // Plain text
+                testwstr = L"Plain text : 일반 텍스트";
+                flftr.AdditionalSpace( 0 );
+                flftr.Bold( false );
+                flftr.Italic( false );
+                flftr.FontSize( 20 );
+                flftr.FontColor( 0xFFFFFFEF );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+
+                putY += 30;
+                // Bold
+                testwstr = L"Bold text : 두꺼운 텍스트";
+                flftr.AdditionalSpace( 0 );
+                flftr.Bold( true );
+                flftr.Italic( false );
+                flftr.FontSize( 20 );
+                flftr.FontColor( 0xFFFFFFEF );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+                
+                putY += 30;
+                // Bold
+                testwstr = L"Booooooooold text : 두꺼어어어어어운 텍스트";
+                flftr.AdditionalSpace( 0 );
+                flftr.Bold( true );
+                flftr.BoldRatio( 8.f );
+                flftr.Italic( false );
+                flftr.FontSize( 20 );
+                flftr.FontColor( 0xFFFFFFEF );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+                flftr.ResetBoldRatio();
+
+                putY += 30;
+                // Thin
+                testwstr = L"Thin text : 얇은 텍스트";
+                flftr.AdditionalSpace( 0 );
+                flftr.WidthRatio( 0.5f );
+                flftr.Bold( false );
+                flftr.Italic( false );
+                flftr.FontSize( 20 );
+                flftr.FontColor( 0xFFFFFFEF );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+                flftr.ResetWidthRatio();
+
+                putY += 30;
+                // Italic
+                testwstr = L"Italic text : 이탤릭 텍스트";
+                flftr.AdditionalSpace( 0 );
+                flftr.Bold( false );
+                flftr.Italic( true );
+                flftr.FontSize( 20 );
+                flftr.FontColor( 0xFFFFFFEF );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF20409F );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+
+                putY += 30;
+                // Italic + Bold
+                testwstr = L"Italic bold text : 이탤릭 두꺼운 텍스트";
+                flftr.AdditionalSpace( 0 );
+                flftr.Bold( true );
+                flftr.Italic( true );
+                flftr.FontSize( 42 );
+                flftr.FontColor( 0xFFFFFFEF );
+                flftr.MeasureText( testwstr.c_str(), mrect );
+                mrect.x = 10;
+                mrect.y = putY;
+                drawRect( imgGrad, &mrect, 0xFF80A0AF );
+                flftr.RenderText( imgGrad, 10, putY, testwstr.c_str(), &rect );
+                drawRect( imgGrad, &rect );
+
+
+                testwstr.clear();
             }
 
-            imgGradation->uncache();
+            imgGrad->uncache();
 
-            boxImage.image( imgGradation );
+            boxImage.image( imgGrad );
         }
     window.end();
     window.show();
 
     int reti = Fl::run();
 
-    if ( imgGradation != NULL )    
+    if ( imgGrad != NULL )    
     {
-        fl_imgtk::discard_user_rgb_image( imgGradation );
+        fl_imgtk::discard_user_rgb_image( imgGrad );
     }
 
     return reti;

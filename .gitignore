@@ -38,3 +38,4 @@
 testing/bin
 testing/obj
 testing/*.ttf
+Makefile
