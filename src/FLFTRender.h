@@ -5,7 +5,7 @@
 *
 *  libfreetype2 toolkit for FLTK RGB inmage
 *  ========================================
-*  (C)Copyrighted 2020, Raphael Kim
+*  (C)Copyrighted 2020-2021, Raphael Kim
 *  [ source at ] https://github.com/rageworx/FLFTRender
 *
 *******************************************************************************/
@@ -18,8 +18,8 @@
 #endif /// of _WIN32
 
 // -----------------------------------------------------------------------------
-// Version : 0.2.1.2 [ build, 37 ]
-#define     FLFTRENDER_VERSION_S        "0.2.1.2"
+// Version : 0.2.2.4 [ build, 40 ]
+#define     FLFTRENDER_VERSION_S        "0.2.2.4"
 #define     FLFTRENDER_VERSION          0x00020102
 #define     FLFTRENDER_VERSION_EX       0x00000025
 

@@ -552,10 +552,6 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
     if ( ( text == NULL ) || ( target == NULL ) )
         return false;
 
-    // check target image --
-    if( target->d() == 2 ) /// unsupported color depth !
-        return false;
-
     if ( ( target->w() == 0 ) || ( target->h() == 0 ) )
         return false;
 
@@ -664,6 +660,24 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                                     if ( dp > 1.f ) dp = 1.f;
 
                                     renderbuffer[ pos ] = (unsigned char)( dp * 255.f );
+                                }
+                                break;
+
+                                case 2: /// gray-scaled with alpha 
+                                if ( gdf > 0.f )
+                                {
+                                    float dp = (float)( renderbuffer[ pos + 0 ] ) / 255.f;
+                                    float af = (float)( renderbuffer[ pos + 1 ] ) / 255.f;
+
+                                    dp += ( gdf * fcolf[3] );
+                                    if ( dp > 1.f ) dp = 1.f;
+                                    
+                                    af *= ( 1.f - ( af * fcolf[3] * gdf ) );
+                                    af += ( fcolf[3] * gdf );
+                                    if ( af > 1.f ) af = 1.f;
+
+                                    renderbuffer[ pos + 0 ] = (unsigned char)( dp * 255.f );
+                                    renderbuffer[ pos + 1 ] = (unsigned char)( af * 255.f );
                                 }
                                 break;
 
