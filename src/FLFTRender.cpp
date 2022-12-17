@@ -410,7 +410,7 @@ bool FLFTRender::MeasureText( const wchar_t* text, Rect &rect )
             }
         }
 
-        if ( flagWidthRatio != FLFT_DEFAULT_WIDTHR );
+        if ( flagWidthRatio != FLFT_DEFAULT_WIDTHR )
         {
             tfmat.xx = (FT_Fixed)( tfmat.xx * flagWidthRatio );
         }
@@ -604,7 +604,7 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                 tfmat.xy = (FT_Fixed)( shear * 0x10000 );
             }
 
-            if ( flagWidthRatio != FLFT_DEFAULT_WIDTHR );
+            if ( flagWidthRatio != FLFT_DEFAULT_WIDTHR )
             {
                 tfmat.xx = (FT_Fixed)( tfmat.xx * flagWidthRatio );
             }
