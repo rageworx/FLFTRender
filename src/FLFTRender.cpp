@@ -713,7 +713,7 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                                     float gf = (float)( renderbuffer[ pos + 1 ] ) / 255.f;
                                     float bf = (float)( renderbuffer[ pos + 2 ] ) / 255.f;
                                     float af = (float)( renderbuffer[ pos + 3 ] ) / 255.f;
-
+                                    
                                     rf *= ( 1.f - ( af * fcolf[3] * gdf ) );
                                     rf += ( fcolf[0] * fcolf[3] * gdf );
                                     if ( rf > 1.f ) rf = 1.f;
@@ -726,7 +726,8 @@ bool FLFTRender::RenderText( Fl_RGB_Image* &target, unsigned x, unsigned y, cons
                                     bf += ( fcolf[2] * fcolf[3] * gdf );
                                     if ( bf > 1.f ) bf = 1.f;
                                     
-                                    af *= ( 1.f - ( af * fcolf[3] * gdf ) );
+                                    //af *= ( 1.f - ( af * fcolf[3] * gdf ) );
+                                    af *= ( 1.f - ( fcolf[3] * gdf ) );
                                     af += ( fcolf[3] * gdf );
                                     if ( af > 1.f ) af = 1.f;
 
