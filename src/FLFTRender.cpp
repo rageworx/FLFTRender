@@ -888,7 +888,11 @@ bool FLFTRender::Loader( const wchar_t* ttfpath, long idx, FLFTRender* &flftr )
                 unsigned char* buff = new unsigned char[fsz];
                 if ( buff != NULL )
                 {
-                    fread( buff, 1, fsz, fp );
+                    int fr = fread( buff, 1, fsz, fp );
+                    if ( fr < 0 )
+                    {
+                        fprintf( stderr, "Error, failed to read file.\n" );
+                    }
                     flftr = new FLFTRender( buff, fsz, idx );
                     if ( flftr != NULL )
                     {
